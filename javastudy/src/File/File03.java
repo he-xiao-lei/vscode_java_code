@@ -33,5 +33,13 @@ public class File03 {
         //细节:可以创建单级，也可以创建多级目录，底层会调用mkdir方法
         File f2 = new File("/home/hexiaolei/JavaTestFile/aaab//aaa/aaa/aaa/aa/aa");
         System.out.println("创建是否成功:"+f2.mkdirs());
+
+
+
+
+        //Delete 删除文件或者空文件夹
+        File file = new File("/home/hexiaolei/JavaTestFile/a.txt");
+        System.out.println("删除是否成功"+file.delete());
+        System.out.println("文件是否存在"+file.exists());
     }
 }
