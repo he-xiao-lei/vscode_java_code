@@ -14,7 +14,7 @@ public class File04 {
         //1.创建File对象
         File file = new File("/home/hexiaolei/JavaTestFile/aaa");
         //2.listFiles方法
-        //作用：获取JavaTestFile文件夹内所有的内容
+        //作用：获取JavaTestFile文件夹内所有的内容,路径是全名
         File[] files = file.listFiles();
         System.out.println(Arrays.toString(files));
         //当调用者File表示的路径不存在时，返回null
@@ -27,7 +27,7 @@ public class File04 {
 //            //f表示其中的每一个元素
 //            System.out.println(f);
 //        }
-a
+
 
     }
 }

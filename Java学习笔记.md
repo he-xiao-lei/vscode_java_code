@@ -6897,3 +6897,10 @@ public class File04 {
 
 ### File的常见方法(获取和遍历)
 
+| 方法名称                                         | 说明                                     |
+| ------------------------------------------------ | ---------------------------------------- |
+| `public static File[] listRoots()`               | 列出可用的文件系统根                     |
+| `public String[] list()`                         | 获取当前该路径下所有内容                 |
+| `public String[] list(FilenameFilter filter)`    | 利用文件名过滤器获取当前该路径下所有内容 |
+| `public File[] listFiles()`                      | 获取当前该路径下所有内容                 |
+| `public File[] listFiles(FilenameFilter filter)` | 利用文件名过滤器获取当前该路径下所有内容 |
