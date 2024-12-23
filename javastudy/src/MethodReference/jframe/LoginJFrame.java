@@ -36,7 +36,6 @@ public class LoginJFrame extends MyJFrame {
         go.setBackground(Color.WHITE);
 
         go.addActionListener(super::method1);
-//        go.addActionListener(this::method1);
 
         this.getContentPane().add(go);
 
@@ -60,9 +59,6 @@ public class LoginJFrame extends MyJFrame {
         this.getContentPane().setBackground(Color.white);
         this.setAlwaysOnTop(true);//置顶
     }
-//    public void method1(ActionEvent e) {
-//        System.out.println("go按钮被点击了");
-//    }
 
 
 
