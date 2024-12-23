@@ -6799,4 +6799,100 @@ public class File02 {
 | `public boolean mkdirs()`        | 创建多级文件夹       |
 | `public boolean delete()`        | 删除文件、空文件夹   |
 
- 
+代码
+
+
+```java
+package File;
+
+import java.io.File;
+import java.io.IOException;
+
+public class File03 {
+    public static void main(String[] args) throws IOException {
+        /*
+        | 方法名称                         | 说明                 |
+| -------------------------------- | -------------------- |
+| `public boolean createNewFile()` | 创建一个新的空的文件 |
+| `public boolean mkdir()`         | 创建单级文件夹       |
+| `public boolean mkdirs()`        | 创建多级文件夹       |
+| `public boolean delete()`        | 删除文件、空文件夹   |
+         */
+        //delete方法默认只能删除文件和空文件夹，不走回收站
+        //细节1如果文件不存在，返回true，创建成功，如果存在，返回false,创建失败，因为已经存在
+        //细节2:如果父路径找不到，会报IOException
+        //例子:/home/hexiaolei/xxx/lll.txt 这里的xxx不存在
+        //细节3:createNewFile()创建的一定是文件，如果是创建的类似ddd之类的，就会创建出没有后缀名的ddd文件
+        File f = new File("/home/hexiaolei/JavaTestFile/lll.txt");
+        System.out.println("文件是否存在:"+f.exists());
+        boolean newFile = f.createNewFile();
+        System.out.println("文件是否创建成功:"+newFile);
+        System.out.println("文件是否存在:"+f.exists());
+
+        //mkdir() make Directory 文件夹（目录）
+        //细节1：路径唯一，不可以有同名文件或者同名文件夹, 会返回false
+        //细节2：不可以递归创建文件夹,会返回false
+        File f1 = new File("/home/hexiaolei/JavaTestFile/directory");
+        System.out.println("文件夹是否创建成功:"+f1.mkdir());
+        //mkdirs() mkdir Directories 创建多级文件夹
+        //细节:可以创建单级，也可以创建多级目录，底层会调用mkdir方法
+        File f2 = new File("/home/hexiaolei/JavaTestFile/aaab//aaa/aaa/aaa/aa/aa");
+        System.out.println("创建是否成功:"+f2.mkdirs());
+
+
+
+
+        //Delete 删除文件或者空文件夹
+        File file = new File("/home/hexiaolei/JavaTestFile/a.txt");
+        System.out.println("删除是否成功"+file.delete());
+        System.out.println("文件是否存在"+file.exists());
+    }
+}
+
+```
+
+### File的成员方法(获取和遍历)
+
+| 方法名                    | 说明                     |
+| ------------------------- | ------------------------ |
+| public File[] listFiles() | 获取当前路径下的所有内容 |
+
+代码
+
+```java
+package File;
+
+import java.io.File;
+import java.util.Arrays;
+
+public class File04 {
+    public static void main(String[] args) {
+        /*
+        File的成员方法(获取和遍历)
+        | 方法名                    | 说明                     |
+        | ------------------------- | ------------------------ |
+        | public File[] listFiles() | 获取当前路径下的所有内容 |
+         */
+        //1.创建File对象
+        File file = new File("/home/hexiaolei/JavaTestFile/aaa");
+        //2.listFiles方法
+        //作用：获取JavaTestFile文件夹内所有的内容
+        File[] files = file.listFiles();
+        System.out.println(Arrays.toString(files));
+        //当调用者File表示的路径不存在时，返回null
+        //当调用者File表示的路径是文件，返回null
+        //当调用者File表示的路径是一个空文件夹时，返回一个长度为0的数组
+        //当调用者File表示的路径是一个有内容的文件夹时,会将里面所有文件和文件夹的路径放在File数组中返回,如果有隐藏文件，也会包含进去
+        //当调用者File表示的路径是一个需要权限才能访问的文件夹时，返回null
+        
+//        for (File f : files) {
+//            //f表示其中的每一个元素
+//            System.out.println(f);
+//        }
+
+
+    }
+}
+
+```
+
