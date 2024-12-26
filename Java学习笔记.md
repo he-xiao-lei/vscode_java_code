@@ -7059,3 +7059,151 @@ public class T3 {
 
 ```
 
+T3代码
+
+
+
+0和null的区别调用listFiles的区别
+
+> 在Java中，如果`File`对象`src`是一个空文件夹，调用`listFiles()`方法会返回一个空数组，而不是`null`。这是因为`listFiles()`方法的目的是列出目录中的所有文件和子目录，如果没有文件或子目录，它就会返回一个长度为0的数组。如果`src`不是一个目录或者是一个空的`File`对象（即没有路径指向任何文件或目录），那么`listFiles()`会抛出`NullPointerException`。因此，正确的处理方式是在调用`listFiles()`之前检查`src`是否是一个目录，并且确保它不是`null`。
+
+```java
+package File.Test;
+
+import java.io.File;
+
+public class T4 {
+    public static void main(String[] args) {
+        //删除一个多级文件夹(有内容的)
+        //步骤：先删除一个文件夹里面的所有内容
+        //然后再删除自己
+        File file = new File("/home/hexiaolei/aaa/src");
+        deleteFile(file);
+        System.out.println("Is " + file + " exists = " + file.exists());
+
+    }
+
+    /*
+    作用：删除file文件夹
+    参数：需要删除的文件夹子
+     */
+    public static void deleteFile(File file) {
+        File[] files = file.listFiles();
+        if (files != null) {
+            // 遍历文件夹获取里面的每一个文件
+            for (File file1 : files) {
+                //判断是否为文件，如果是文件就打印路径并删除
+                if (file1.isFile()) {
+
+                    System.out.println("file1.delete() = " + file1);
+                    file1.delete();
+                } else {
+                    //如果不是文件就递归，删除里面的文件
+                    deleteFile(file1);
+                }
+            }
+            file.delete();
+        }
+    }
+}
+
+```
+
+T4-5代码
+
+```java
+package File.Test;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+public class T5 {
+    public static void main(String[] args) {
+        /*
+        统计一个文件夹中每一种文件的个数并打印。（考虑子文件夹）
+        格式如下:
+                txt:1
+                jpg:2
+                jpg:6
+         */
+        File file = new File("/home/hexiaolei/aaa/");
+        countFile(file).forEach((x, y) -> System.out.println(x + " " + y));
+
+
+        long len = getLen(file);
+        System.out.println("len(文件总字节大小) = " + len);
+    }
+	//T5
+    public static HashMap<String, Integer> countFile(File file) {
+        HashMap<String, Integer> hashMap = new HashMap<>();
+        File[] src = file.listFiles();
+        if (src != null) {
+            for (File f : src) {
+                //是文件
+                if (f.isFile()) {
+                    //获取后缀名,并判断是否是文件
+                    String[] split = f.getName().split("\\.");
+                    //避免没有文件后缀名的情况
+                    if (split.length >= 2) {
+                        //避免类似a.a.txt之类的文件
+                        String suffix = split[split.length - 1];
+//                    String suffix = f.getName().split("\\.")[1];
+                        if (hashMap.containsKey(suffix)) {
+                            Integer i = hashMap.get(suffix);
+                            i++;
+                            hashMap.put(suffix, i);
+                        } else {
+                            //不存在就加
+                            hashMap.put(suffix, 1);
+                        }
+                    }
+
+                } else {
+                    //不是文件，递归
+                    //sonHashmap是子文件夹中每一种文件的个数
+                    HashMap<String, Integer> sonHashMap = countFile(f);
+                    // 遍历sonHashmap 将里面所有内容添加到hashmap中
+                    //hashMap:txt 1 , jpg 2 ,doc 3
+                    //sonHashMap:txt 2, jpg ,doc 4
+                    //把sonHashMap的内容添加到原来的hashmap中
+                    for (Map.Entry<String, Integer> x : sonHashMap.entrySet()) {
+                        String key = x.getKey();
+                        Integer value = x.getValue();
+                        if (hashMap.containsKey(key)) {
+                            //存在
+                            int count = hashMap.get(key);
+                            count = count + value;
+                            hashMap.put(key, count);
+                        } else {
+                            //不存在
+                            hashMap.put(key, value);
+                        }
+                    }
+                }
+            }
+        }
+        return hashMap;
+    }
+	//T4
+    public static long getLen(File file) {
+        long length = 0L;
+        File[] src = file.listFiles();
+        if (src != null)
+            for (File f : src) {
+                if (f.isFile()) {
+                    //方法返回文件字节数
+                    length += f.length();
+                } else {
+                    //需要这样子是因为，如果第二次调用时length会变成0,导致只会有一个文件夹下文件的字节数大小
+                    length += getLen(f);
+                }
+            }
+        return length;
+    }
+}
+
+```
+
+## IO流
+

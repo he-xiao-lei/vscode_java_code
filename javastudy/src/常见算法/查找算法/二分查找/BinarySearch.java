@@ -13,7 +13,6 @@ public class BinarySearch {
         // 最大索引
         int max = arr.length - 1;
         while (true) {
-
             int mid = (max + min) / 2;
             // 拿着mid指向的元素跟要查找的元素进行比较
             if (min > max) {
