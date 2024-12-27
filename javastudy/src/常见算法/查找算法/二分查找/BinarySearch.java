@@ -15,6 +15,7 @@ public class BinarySearch {
         while (true) {
             int mid = (max + min) / 2;
             // 拿着mid指向的元素跟要查找的元素进行比较
+            //如果min> max 就说明这个元素找不到
             if (min > max) {
                 return -1;
             } else if (arr[mid] < num) {

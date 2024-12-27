@@ -7207,3 +7207,165 @@ public class T5 {
 
 ## IO流
 
+什么是IO流
+
+> 存储和读取数据的解决方案
+
+File - 表示系统中文件和文件夹的路径
+
+> File 只能对文件本身进行操作，==不可以修改文件里面存储的数据==
+
+IO流:用于读写文件中的数据，（可以读写文件，或者网络中的数据）
+
+提问：IO流中，谁在读，谁在写，以谁为参照物看读写的方向呢
+
+回答 ：按照程序的方向来看
+
+
+
+### IO流分类
+
+- 流的方向
+
+  - 输入流:读取文件里的内容给程序,==写入==
+
+  - 输出流:将程序里面的内容写入到文件中==读取==
+
+- 操作文件类型
+
+  - 字节流
+    - 可以操控所有类型文件
+  - 字符流
+    - 只能操作纯文本文件
+
+ **总结**
+
+### 1. 什么是IO流?
+
+IO流是存储和读取数据的解决方案。它包括输入（Input, I）和输出（Output, O），流是指像水流一样传输数据的方式。
+
+### 2. IO流的作用?
+
+IO流主要用于读写数据，可以应用于本地文件和网络。
+
+### 3. IO流按照流向可以分类哪两种流?
+
+- 输出流：程序向文件传输数据。
+- 输入流：文件向程序传输数据。
+
+### 4. IO流按照操作文件的类型可以分类哪两种流?
+
+- 字节流：可以操作所有类型的文件，包括文本文件和二进制文件。
+- 字符流：只能操作纯文本文件。
+
+### 5. 什么是纯文本文件?
+
+纯文本文件是指可以用Windows系统自带的记事本打开并且能读懂的文件。这些文件不包含任何格式化信息，仅包含文本字符。
+
+
+
+### IO流体系和基本字节输入输出基本用法
+
+```mermaid
+graph TD;
+	IO流体系-->字节流;
+	IO流体系-->字符流;
+	字节流-->InputStream;
+	字节流-->OutputStream;
+	字符流-->Reader;
+	字符流-->Writer;
+	InputStream-->抽象类;
+	OutputStream-->抽象类;
+	Reader-->抽象类;
+	Writer-->抽象类;
+```
+
+​							字节输入流		字节输出流		字符输入流	字符输出流
+
+因为这四个是抽象类，创建不了对象		
+
+ 所以就需要创建子类对象
+
+例子
+
+```mermaid
+graph TD;
+	字节流-->InputStream;
+	字节流-->OutptStream;
+	InputStream-->FileInputStream;
+```
+
+​										操作本地文件的字节输入流
+
+​											FileInputStream
+
+​										File作用，InputStream父类
+
+### 字节输出流写出数据的细节
+
+FileOutputStream
+
+> 操作本地文件的字节输出流,可以把程序中的数据写入到文件中
+
+书写步骤:
+
+1. 创建字节输出流对象
+2. 写入数据
+3. 释放资源
+
+FileOutputStream原理:
+
+> ```java
+> // 1. 在程序和文件之间开辟了一条通道
+> FileOutputStream fos = new FileOutputStream("/home/hexiaolei/aaa/a.txt");
+> // 2. 程序将内容写入到文件中
+>  fos.write(97);
+> // 3. 用完了需要关闭通道
+> fos.close();
+> ```
+
+**总结以及代码**
+
+```java
+package IO;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class IOdemo1 {
+    public static void main(String[] args) throws IOException {
+        /*
+       FileOutputStream
+
+    > 操作本地文件的字节输出流,可以把程序中的数据写入到文件中
+
+    书写步骤:
+
+    1. 创建字节输出流对象
+        细节1： 参数是字符串或者是File对象都是可以的
+            public FileOutputStream(String name) throws FileNotFoundException {
+            this(name != null ? new File(name) : null, false);
+    }
+    源代码是这样写的
+        细节2：如果文件不存在系统会自动创建一个，但是父路径必须存在
+        细节3：如果文件已经存在，会把以存在文件内容清除在写入数据
+    2. 写入数据
+        细节1：write的方法是整数，但是实际上写到本地文件的是ASCII码表对应的字符
+        97 --> a
+    3. 释放资源
+        每次使用完流以后，都需要释放
+         */
+        //1.创建对象
+        //写入 输出流OutputStream
+        //文件 File
+
+        FileOutputStream fos = new FileOutputStream("/home/hexiaolei/aaa/z.txt");
+        //2.写出数据
+        fos.write(97);
+        //3.释放资源
+        fos.close();
+    }
+}
+
+```
+
