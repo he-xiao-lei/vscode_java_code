@@ -7418,3 +7418,301 @@ public class FileOutputStreamDemo1 {
 
 ###  换行和续写
 
+代码
+
+```java
+package IO;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class FileOutputStreamDemo2 {
+    public static void main(String[] args) throws IOException {
+        /*
+        换行写:
+            Windows: \r\n
+            Linux: \n
+            Mac:  \r
+            细节:windows中,java对换行进行了优化,会自动补全,输入\n或者\r都是可以的
+            不过还是建议写全
+        续写:
+         */
+        FileOutputStream fos = new FileOutputStream("/home/hexiaolei/aaa/a.txt");
+        fos.write("我是22计算机网络技术一班的".getBytes());
+        //写出一个换行符就可以实现换行了
+        fos.write("\n".getBytes());
+
+        fos.write("666".getBytes());
+        fos.close();
+
+        //续写:需要使用FileOutputStream的另外一个构造方法,第二个参数是打开续写开关，为true不会把文件删除后在写入，而是在原有的基础上写入
+        //如果参数为false（默认）,会先把文件删除后在写入
+        FileOutputStream fos1 = new FileOutputStream("/home/hexiaolei/aaa/a.txt",true);
+        fos1.write("你好，我是续写的内容".getBytes());
+        fos1.close();
+    }
+}
+```
+
+**总结**
+
+当然，以下是您提供内容的文本格式：
+
+1. FileOutputStream的作用
+   可以把程序中的数据写到本地文件上，是字节流的基本流。
+
+2. 书写步骤
+   创建对象，写出数据，释放资源
+
+3. 三步操作的细节
+   创建对象：文件存在、文件不存在、追加写入
+   写出数据：写出整数、写出字节数组、换行写入
+
+
+
+### 字节输入流的基本用法FileInputStream
+
+> 读取本地文件的字节流，可以把文帝文件中的数据度渠道程序中
+
+步骤:
+
+1. 创建字节输入流对象
+2. 读数据
+3. 释放资源
+
+代码
+
+```java
+package IO;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class FileInputStreamDemo1 {
+    public static void main(String[] args) throws IOException {
+        /*
+        ### 字节输入流的基本用法FileInputStream
+
+> 读取本地文件的字节流，可以把文帝文件中的数据度渠道程序中
+
+步骤:
+
+1. 创建字节输入流对象
+2. 读数据
+3. 释放资源
+         */
+        FileInputStream fis = new FileInputStream("/home/hexiaolei/aaa/a.txt");
+        int r1 = fis.read();
+        System.out.println(r1);
+        int r2 = fis.read();
+        System.out.println(r2);
+        int r3 = fis.read();
+        System.out.println(r3);
+        int r4 = fis.read();
+        System.out.println(r4);
+        int r5 = fis.read();
+        System.out.println(r5);
+        int r6 = fis.read();
+        System.out.println(r6);
+        int r7 = fis.read();
+        System.out.println(r7);//如果读取不到，会返回-1
+        fis.close();
+    }
+}
+```
+
+
+
+
+
+### 字节流写入文件细节
+
+代码
+
+```java
+package IO;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class FileInputStreamDemo1 {
+    public static void main(String[] args) throws IOException {
+        /*
+        ### 字节输入流的基本用法FileInputStream
+
+> 读取本地文件的字节流，可以把文帝文件中的数据度渠道程序中
+
+步骤:
+
+1. 创建字节输入流对象
+    细节1：如果文件不存在，会直接报错
+    输出流:不存在，创建
+        把数据写到文件中(有数据)
+    输入流：不存在，报错
+        从文件中读取数据,数据在文件中，所以即使吧文件创建出来也是空的，没有任何意义
+
+    程序最重要的是：数据。
+2. 读数据
+    细节1：一次读取一个字节，读取出来的是ASCII对应的数字
+    细节2：当没有字节可以读取时会返回-1
+
+3. 释放资源
+         */
+        FileInputStream fis = new FileInputStream("/home/hexiaolei/aaa/a.txt");
+        //读取数据
+//        int r1 = fis.read();
+//        System.out.println(r1);
+//        int r2 = fis.read();
+//        System.out.println(r2);
+//        int r3 = fis.read();
+//        System.out.println(r3);
+//        int r4 = fis.read();
+//        System.out.println(r4);
+//        int r5 = fis.read();
+//        System.out.println(r5);
+//        int r6 = fis.read();
+//        System.out.println(r6);
+//        int r7 = fis.read();
+//        System.out.println(r7);//如果读取不到，会返回-1
+        //字节流循环读取
+        //while (fis.read() != -1) {
+        //            System.out.print(fis.read());
+        //        }
+        //不可以这么写
+        //因为read执行一次，都会读取当前字符并且移动一次指针
+        int b;
+        while ((b = fis.read()) != -1) {
+            System.out.print((char) b);
+        }
+        fis.close();
+    }
+}
+```
+
+### 文件拷贝基本代码
+
+```java
+package IO;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class FileCopy {
+    public static void main(String[] args) throws IOException {
+        FileInputStream input = new FileInputStream("/home/hexiaolei/RosanMedia.mp4");
+        FileOutputStream output = new FileOutputStream("/home/hexiaolei/aaa/b.mp4");
+        int b;
+        while ((b = input.read()) != -1) {
+            output.write((char) b);
+        }
+        //释放资源规则
+        //先开的后释放
+
+        output.close();
+        input.close();
+    }
+}
+```
+
+### 文件拷贝的弊端和解决方案
+
+FileInputStream读取的问题
+
+IO流：如果拷贝的文件过大,速度是否会受到影响
+
+原因:一次拷贝一个字节
+
+解决方式:一次读取多个字节
+
+| 方法名称                         | 说明                   |
+| -------------------------------- | ---------------------- |
+| `public int read()`              | 一次读一个字节数据     |
+| `public int read(byte[] buffer)` | 一次读一个字节数组数据 |
+
+注意：一次性读取一个字节数组，每次读取尽量把数组装满
+
+  优化后的代码
+
+```java
+package IO;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class NewFileCopy {
+    public static void main(String[] args) throws IOException {
+        /*
+        | 方法名称                         | 说明                   |
+| -------------------------------- | ---------------------- |
+| `public int read()`              | 一次读一个字节数据     |
+| `public int read(byte[] buffer)` | 一次读一个字节数组数据 |
+         */
+//        FileInputStream fis = new FileInputStream("/home/hexiaolei/aaa/a.txt");
+//        FileOutputStream fos = new FileOutputStream("/home/hexiaolei/newRosan.mp4");
+        //一次读取多少字节数据，具体读取多少，跟数组长度有关
+        //返回值(len)：一次读取到多少个字节数据
+//        int len = fis.read(bytes);
+//        String str = new String(bytes);//(str)读取到的数据
+//        System.out.println(str);
+
+
+//        byte[] bytes = new byte[2];
+//        int len;
+//        len = fis.read(bytes);//0,0
+//        System.out.println(new String(bytes));//ab
+//        len = fis.read(bytes);//97,98
+//        System.out.println(new String(bytes));//99,100
+//        len = fis.read(bytes);//99,100
+//        System.out.println(new String(bytes));//101,10
+
+//        运行结果
+        /*
+        解释:
+        因为是Linux操作系统,所以换行符是LF
+        第一次读取到ab，存储到数组中,打印
+        第二次读取到cd，覆盖之前的ab，打印
+        第三次读取到e和回车符号,覆盖cd，打印
+        第四次打印len时由于没有新字符了所以返回-1,
+        最后一次打印由于没有清空数组，导致内容还是e和回车符号
+         */
+
+
+//        想要改变，可以使用这一种方式
+
+//        int len1;//读取到的字节长度
+//        byte[] bytes = new byte[2];
+//        len1 = fis.read(bytes);
+//        System.out.println(new String(bytes, 0, len1));
+//        len1 = fis.read(bytes);
+//        System.out.println(new String(bytes, 0, len1));
+//        //前四个已经读取完毕，这里只剩e和换行符,所以读取长度还是2
+//        len1 = fis.read(bytes);
+//        System.out.println(new String(bytes, 0, len1 - 1));
+//        int read = fis.read(bytes);
+//        System.out.println("read = " + read);
+//
+//        fis.close();
+//        System.out.println("hello\nWorld");
+
+
+        //FileCopy改写
+        FileInputStream fileInputStream = new FileInputStream("/home/hexiaolei/centos.iso");
+        FileOutputStream fileOutputStream = new FileOutputStream("/home/hexiaolei/a.iso");
+
+								//每次读取5MB
+        byte[] bytes1 = new byte[1024 * 1024 * 5];
+        int len;
+        while ((len = fileInputStream.read(bytes1)) != -1) {
+            fileOutputStream.write(bytes1,0,len);
+        }
+        fileOutputStream.close();
+        fileInputStream.close();
+    }
+}
+
+```
+
+### 不同JDK捕获异常的方式
+

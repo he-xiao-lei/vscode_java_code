@@ -21,5 +21,11 @@ public class FileOutputStreamDemo2 {
 
         fos.write("666".getBytes());
         fos.close();
+
+        //续写:需要使用FileOutputStream的另外一个构造方法,第二个参数是打开续写开关，为true不会把文件删除后在写入，而是在原有的基础上写入
+        //如果参数为false（默认）,会先把文件删除后在写入
+        FileOutputStream fos1 = new FileOutputStream("/home/hexiaolei/aaa/a.txt",true);
+        fos1.write("你好，我是续写的内容".getBytes());
+        fos1.close();
     }
 }
