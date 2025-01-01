@@ -7716,3 +7716,326 @@ public class NewFileCopy {
 
 ### 不同JDK捕获异常的方式
 
+代码
+
+```java
+package IO;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class NewTCF {
+    public static void main(String[] args) throws IOException {
+        FileInputStream fileInputStream = new FileInputStream("/home/hexiaolei/RosanMedia.mp4");
+        FileOutputStream fileOutputStream = new FileOutputStream("/home/hexiaolei/a.iso");
+        try (fileOutputStream;fileInputStream){//写在这里面的对象(的类需要继承AutoCloseable接口)，方法执行结束后会自动释放资源
+            byte[] bytes1 = new byte[1024 * 1024 * 5];
+            int len;
+            while ((len = fileInputStream.read(bytes1)) != -1) {
+                fileOutputStream.write(bytes1,0,len);
+            }
+        }catch (IOException e ){
+            e.printStackTrace();
+        }
+
+
+    }
+}
+```
+
+版本区别
+
+![image-20241229153437410](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20241229153437410.png)
+
+**只有继承于AutoCloseable的类才能写在try的括号内**
+
+
+
+
+
+### 字符集详解(ASCII,GBK)
+
+存储英文一个字节就可以了
+
+ASCII:英文
+
+GBK:英文，中文
+
+Unicode:英文，中文 
+
+计算机的存储规则（英文）
+
+```mermaid
+flowchart LR
+    要存储的英文a == 查询ascii ==> 对应的数字97_1100001 == 编码 ==> 01100001 
+
+```
+
+#### ASCII编码和解码过程
+
+1. **查询ASCII**: 当你需要存储字符'a'时，首先查询其ASCII值，结果是97。
+2. **编码**: 将这个十进制数97转换为二进制，得到0110 0001。
+3. **解码**: 当你从存储介质读取到二进制数0110 0001时，通过ASCII解码规则（直接转成十进制），你得到数字97，然后查询这个数字对应的字符，结果是'a'。
+
+字符集详解(Unicode)
+
+UTF-8编码规则:1-4四个字节
+
+ASCII：一个字节
+
+中文：三个字节
+
+UTF-8是Unicode字符集的一种编码方式
+
+![image-20250101142359304](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250101142359304.png)
+
+### 为什么会有乱码
+
+原因1：读取数据时没有读取完整个汉字
+
+原因2：编码和解码的方式不统一
+
+如何避免出现乱码
+
+1. 不要用字节流读取文件
+2. 编码解码时使用同一个码表，同一种编码方式
+
+### Java中编码和解码的方法实现
+
+**Java**中编码的方法
+
+| String类中的方法                             | 说明                 |
+| -------------------------------------------- | -------------------- |
+| `public byte[] getBytes()`                   | 使用默认方式进行编码 |
+| `public byte[] getBytes(String charsetName)` | 使用指定方式进行编码 |
+
+**Java**中解码的方法
+
+| String类中的方法                           | 说明                 |
+| ------------------------------------------ | -------------------- |
+| `String(byte[] bytes)`                     | 使用默认方式进行解码 |
+| `String(byte[] bytes, String charsetName)` | 使用指定方式进行解码 |
+
+代码
+
+```java
+package IO;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+
+public class CharSetDemo1 {
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        /*
+        # Java中编码的方法
+
+| String类中的方法                                      | 说明                   |
+|-------------------------------------------------------|------------------------|
+| `public byte[] getBytes()`                            | 使用默认方式进行编码   |
+| `public byte[] getBytes(String charsetName)`          | 使用指定方式进行编码   |
+
+# Java中解码的方法
+
+| String类中的方法                                      | 说明                   |
+|-------------------------------------------------------|------------------------|
+| `String(byte[] bytes)`                                | 使用默认方式进行解码   |
+| `String(byte[] bytes, String charsetName)`            | 使用指定方式进行解码   |
+         */
+        //1.编码
+        String str = "I'm学生";
+        byte[] bytes = str.getBytes();//UTF-8,一个英文一个字节，一个中文三个字节
+        System.out.println(Arrays.toString(bytes));
+
+
+        byte[] bytes1 = str.getBytes("GBK");//指定为GBK,一个英文一个字节，一个中文两个字节
+        System.out.println(Arrays.toString(bytes1));
+
+
+        //2.解码
+        String str1 = new String(bytes);
+        System.out.println(str1);
+        
+        System.out.println(new String(bytes,"GBK"));
+    }
+}
+
+```
+
+效果
+
+```shell
+[73, 39, 109, -27, -83, -90, -25, -108, -97]
+[73, 39, 109, -47, -89, -55, -6]
+I'm学生
+I'm瀛︾敓
+```
+
+### 字符输入流-空参read方法
+
+字符流：底层就是字节流加上字符集
+
+特点：
+
+- 输入流：一次读一个字节，遇到中文时一次读多个字节
+- 输出流：底层会把数据按照指定的编码方式进行编码，变成字节写入到文件中
+
+使用场景：纯文本文件的操作
+
+Rider：字符输入流
+
+Writer：字符输出流
+
+####  FileReader
+
+1. 创建字符输入流对象
+2. 读取数据
+
+> | 成员方法                         | 说明                         |
+> | -------------------------------- | ---------------------------- |
+> | `public int read()`              | 读取数据，读到末尾返回-1     |
+> | `public int read(char[] buffer)` | 读取多个数据，读到末尾返回-1 |
+>
+> ### 细节说明
+>
+> - **细节1**: 按字节进行读取，遇到中文字符时，会一次读取多个字节。读取后进行解码，返回一个整数。
+> - **细节2**: 当读取到文件末尾时，`read` 方法将返回-1。
+
+3. 释放资源
+
+ 代码
+
+```java
+package IO.CharSetDemo;
+
+import java.io.FileReader;
+import java.io.IOException;
+
+public class CharSetDemo2 {
+    public static void main(String[] args) throws IOException {
+
+//| 成员方法                         | 说明                         |
+//| -------------------------------- | ---------------------------- |
+//| `public int read()`              | 读取数据，读到末尾返回-1     |
+//| `public int read(char[] buffer)` | 读取多个数据，读到末尾返回-1 |
+        //1.创建对象
+        FileReader fileReader = new FileReader("/home/hexiaolei/aaa/a.txt");
+        //2.读取数据read(),底层也是字节流，默认一个字节一个字节读取，遇到中文会一次读取多个
+        int ch;
+        //空参read细节:默认按照字节读取，如果遇到中文就一次读取多个,
+        //读取之后：方法底层将会进行解码并且转换为十进制
+        //最后将这个十进制作为返回值
+        //这个十进制也表示在字符集上的数字
+        //英文:文件里面的数据 0110 0001
+        //  read进行读取:解码转换为十进制97
+        //中文：文件里面数据 11100110 10110001 10001001
+        //  read进行读取：解码转换为十进制 27721
+        //看到实际字符可以强转
+        while ((ch = fileReader.read()) != -1) {
+            System.out.print((char) ch+"\t");
+            System.out.print(ch + "\t");
+        }
+        //3.释放资源
+        fileReader.close();
+    }
+}
+
+```
+
+### 有参数read方法详细解释
+
+ 代码
+
+```java
+package IO.CharSetDemo;
+
+import java.io.FileReader;
+import java.io.IOException;
+
+public class FileReaderDemo3 {
+    public static void main(String[] args) throws IOException {
+
+        //| `public int read(char[] buffer)` | 读取多个数据，读到末尾返回-1 |
+        FileReader fileReader = new FileReader("/home/hexiaolei/aaa/a.txt");
+
+        char[] chars = new char[13];
+        //读取到的长度
+        int len;
+        //read(char)底层原理:读取数据，解码，强制转换，把强转以后的字符放到数组中
+        //空参的read+强制类型转换
+        while ((len=fileReader.read(chars))!=-1){
+            System.out.println(new String(chars,0,len));
+        }
+        fileReader.close();
+
+    }
+}
+```
+
+### 字符输出流写出数据
+
+FileWrite
+
+**构造方法**
+
+| 构造方法                                             | 说明                             |
+| ---------------------------------------------------- | -------------------------------- |
+| `public FileWriter(File file)`                       | 创建字符输出流关联本地文件       |
+| `public FileWriter(String pathname)`                 | 创建字符输出流关联本地文件       |
+| `public FileWriter(File file, boolean append)`       | 创建字符输出流关联本地文件，续写 |
+| `public FileWriter(String pathname, boolean append)` | 创建字符输出流关联本地文件，续写 |
+
+
+
+成员方法
+
+| 成员方法                                    | 说明                   |
+| ------------------------------------------- | ---------------------- |
+| `void write(int c)`                         | 写出一个字符           |
+| `void write(String str)`                    | 写出一个字符串         |
+| `void write(String str, int off, int len)`  | 写出一个字符串的一部分 |
+| `void write(char[] cbuf)`                   | 写出一个字符数组       |
+| `void write(char[] cbuf, int off, int len)` | 写出字符数组的一部分   |
+
+代码
+
+```java
+package IO.CharSetDemo;
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class FileWriteDemo1 {
+    public static void main(String[] args) throws IOException {
+
+
+        /*
+        | 构造方法                                      | 说明                             |
+|-----------------------------------------------|----------------------------------|
+| `public FileWriter(File file)`                | 创建字符输出流关联本地文件       |
+| `public FileWriter(String pathname)`          | 创建字符输出流关联本地文件       |
+| `public FileWriter(File file, boolean append)`| 创建字符输出流关联本地文件，续写 |
+| `public FileWriter(String pathname, boolean append)`| 创建字符输出流关联本地文件，续写 |
+         */
+        /*
+        | 成员方法                                    | 说明                   |
+| ------------------------------------------- | ---------------------- |
+| `void write(int c)`                         | 写出一个字符           |
+| `void write(String str)`                    | 写出一个字符串         |
+| `void write(String str, int off, int len)`  | 写出一个字符串的一部分 |
+| `void write(char[] cbuf)`                   | 写出一个字符数组       |
+| `void write(char[] cbuf, int off, int len)` | 写出字符数组的一部分   |
+         */
+        FileWriter fw = new FileWriter("/home/hexiaolei/aaa/filewrite.txt");
+        fw.write(25105);//根据字符集编码方式进行编码，然后把编码之后的数据写入到文件之中
+        fw.write("你好聪明？？？");
+        fw.close();
+    }
+}
+
+```
+
+
+
+### 字符串底层原理详解
+
