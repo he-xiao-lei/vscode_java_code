@@ -14,8 +14,8 @@ public class FileReaderDemo3 {
         int len;
         //read(char)底层原理:读取数据，解码，强制转换，把强转以后的字符放到数组中
         //空参的read+强制类型转换
-        while ((len=fileReader.read(chars))!=-1){
-            System.out.println(new String(chars,0,len));
+        while ((len = fileReader.read(chars)) != -1) {
+            System.out.println(new String(chars, 0, len));
         }
         fileReader.close();
         System.out.println();
