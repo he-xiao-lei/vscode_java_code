@@ -8039,3 +8039,74 @@ public class FileWriteDemo1 {
 
 ### 字符串底层原理详解
 
+在底层会在内存里创建一个缓冲区,长度为8192的字节数组
+
+1 创建字符输入流对象
+
+​	底层：关联文件，并创建缓冲区(长度为8192的字节数足)
+
+2 读取数据
+
+​	底层：
+
+1. 判断缓冲区里面是否有数据可以读取
+
+   1. 缓冲区里面没有数据:就从文件里读取数据，放到缓冲区里面，每次尽可能砖墁缓冲区,如果文件中也没有数据了，返回-1
+   2. 缓冲区里面有数据: 就从缓冲区里面读取
+
+   ![image-20250104144343414](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250104144343414.png)
+
+   如果读取超过8192字节的数据,第一次读取了8192个字节到缓冲区，第二次会将剩下的数据也放在缓冲区
+
+   示例
+
+   ![image-20250104145625219](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250104145625219.png)
+
+   代码
+
+   ```java
+   package IO.CharSetDemo;
+   
+   import java.io.FileReader;
+   import java.io.FileWriter;
+   import java.io.IOException;
+   
+   public class FileReaderDetailed {
+       public static void main(String[] args) throws IOException {
+   //        FileWriter fr = new FileWriter("/home/hexiaolei/aaa/all_all_a.txt");
+   //
+   //
+   //        for (int i = 0; i < 8192; i++) {
+   //            fr.write(97);
+   //        }
+   //
+   //        fr.write(98);
+   //
+   //
+   //        fr.close();
+   //
+   
+           //有一种情况,
+           FileReader fileReader = new FileReader("/home/hexiaolei/aaa/all_all_a.txt");
+           //会把数据放到缓冲区
+           fileReader.read();
+           //不加append参数会把文件内容清空
+           FileWriter fileWriter = new FileWriter("/home/hexiaolei/aaa/all_all_a.txt");
+   
+   
+           int ch;
+           //这里会从缓冲区里面读取
+           while ((ch = fileReader.read()) != -1) {
+               System.out.println((char) ch);
+           }
+           //解释：还是可以读取到文件内容的，因为第一次read的时候，filereader会把数据放到缓冲区，然后filewrite会把文件内容清空但是不会把缓冲区清空
+           //所以现在只能读取缓冲区里面的内容,读取完就没有了
+           //所以这里结果就是全都是a
+           fileWriter.close();
+           fileReader.close();
+       }
+   }
+   
+   ```
+
+   ### 字符输出流原理解析
