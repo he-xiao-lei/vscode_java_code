@@ -8130,3 +8130,243 @@ public class FileWriteDemo1 {
 
 3. 释放资源
 
+### 拷贝文件(包括子文件夹)
+
+代码
+
+```java
+package IO.CharSetDemo;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class FileCopyChar {
+    //复制文件(包括子文件夹)
+    public static void main(String[] args) throws IOException {
+        File source = new File("/home/hexiaolei/aaa/source");
+        File dest = new File("/home/hexiaolei/aaa/dest");
+        copyFile(source, dest);
+
+    }
+
+    /*
+    source数据源
+    dest目的地
+
+     */
+    public static void copyFile(File source, File dest) throws IOException {
+        //判断目的文件夹是否存在，如果不存在就创建
+        dest.mkdir();
+        File[] src = source.listFiles();
+        //判断非空并且循环
+        if (src != null) {
+            for (File file : src) {
+                //是否为文件，如果是文件开始复制
+                if (file.isFile()) {
+                    //文件输入流 参数:源文件名
+                    FileInputStream fip = new FileInputStream(file);
+                    //文件输出流，参数:目的文件夹和源文件名
+                    FileOutputStream fop = new FileOutputStream(new File(dest, file.getName()));
+                    byte[] bytes = new byte[1024];
+                    int len;
+                    while ((len = fip.read(bytes)) != -1) {
+                        fop.write(bytes, 0, len);
+                    }
+                    fop.close();
+                    fip.close();
+                } else {
+                    copyFile(file,new File(dest,file.getName()));
+                }
+
+            }
+        }
+    }
+}
+
+```
+
+
+
+### 加密文件
+
+代码
+
+```java
+ package IO.CharSetDemo;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class CodeFile {
+    public static void main(String[] args) throws IOException {
+        /*
+       **文件加密**
+
+为了保证文件的安全性，就需要对原始文件进行加密存储，再使用的时候再对其进行解密处理。
+
+**加密原理：**
+对原始文件中的每一个字节数据进行更改，然后将更改以后的数据存储到新的文件中。
+
+**解密原理：**
+读取加密之后的文件，按照加密的规则反向操作，变成原始文件。
+           ^ : 异或
+           两边相同 : false
+           两边不同 : true
+         */
+
+
+        System.out.println(true ^ true);
+        System.out.println(false ^ true);
+
+        //数字异或计算
+        System.out.println(100 ^ 10);
+        /*
+        原理:
+        100:1100100
+        10:1010
+
+        1100100
+      ^ 0001010
+        ----------
+        1101110 十进制:110
+        第二次计算110 ^ 10
+        1101110
+        0001010
+        ----------
+        1100100 十进制:100
+         */
+        System.out.println(110 ^ 10);
+
+
+        System.out.println("开始");
+//        code();
+        encode();
+    }
+    public static void code() throws IOException {
+        FileInputStream fip = new FileInputStream("/home/hexiaolei/aaa/泰坦钱包地址.txt");
+        FileOutputStream fop = new FileOutputStream("/home/hexiaolei/aaa/code.txt");
+        int b;
+        while ((b=fip.read())!=-1){
+            fop.write(b ^ 100);
+        }
+        fop.close();
+        fip.close();
+    }
+    public static void encode() throws IOException {
+        FileInputStream fip = new FileInputStream("/home/hexiaolei/aaa/code.txt");
+        FileOutputStream fop = new FileOutputStream("/home/hexiaolei/aaa/encode.txt");
+        int b;
+        while ((b=fip.read())!=-1){
+            fop.write(b ^ 100);
+        }
+        fop.close();
+        fip.close();
+    }
+
+}
+
+```
+
+### 文件排序
+
+```java
+package IO.CharSetDemo;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+
+public class newSortFile {
+    public static void main(String[] args) throws IOException {
+        FileReader fr = new FileReader("/home/hexiaolei/aaa/a.txt");
+        FileWriter fw = new FileWriter("/home/hexiaolei/aaa/a_result.txt");
+        StringBuilder strb = new StringBuilder();
+        int ch;
+        while ((ch = fr.read()) != -1) {
+            if (ch == '\n' || ch == '\r') {
+                break;
+            }
+            strb.append((char) ch);
+        }
+        System.out.println(strb);
+
+
+        Integer[] array = Arrays.stream(strb.toString().split("-"))
+                .map(Integer::parseInt)
+                .sorted()
+                .toArray(Integer[]::new);
+
+        String str = Arrays.toString(array).replace(", ","-");
+        String result = str.substring(1, str.length() - 1);
+
+
+        fw.write(result);
+        fw.close();
+        fr.close();
+
+    }
+}
+
+```
+
+old
+
+```java
+package IO.CharSetDemo;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+
+public class sortFile {
+    public static void main(String[] args) throws IOException {
+        //将2-3-1-4-7-8转换为有顺序的
+        //1-2-3-4-7-8
+        FileReader fr = new FileReader("/home/hexiaolei/aaa/a.txt");
+        FileWriter fw = new FileWriter("/home/hexiaolei/aaa/a_result.txt");
+        StringBuilder strb = new StringBuilder();
+        int ch;
+        while ((ch = fr.read()) != -1) {
+            if (ch == '\n' || ch == '\r') {
+                break;
+            }
+            strb.append((char) ch);
+        }
+        System.out.println(strb);
+
+        //排序
+        String string = strb.toString();
+        String[] arr = string.split("-");
+        ArrayList<Integer> list = new ArrayList<>();
+
+        for (int i = 0; i < arr.length; i++) {
+            int i1 = Integer.parseInt(arr[i]);
+            list.add(i1);
+        }
+        Collections.sort(list);
+        System.out.println(list);
+        //写出
+        for (int i = 0; i < list.size(); i++) {
+            if (i == list.size() - 1) {
+                //变成字符串是原样写出
+                fw.write(list.get(i) + "");
+            } else {
+                fw.write(list.get(i) + "-");
+            }
+        }
+        fw.close();
+        fr.close();
+    }
+
+}
+
+```
+
+### 字节缓冲流
+

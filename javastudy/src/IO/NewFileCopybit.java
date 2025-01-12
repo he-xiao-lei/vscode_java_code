@@ -4,7 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class NewFileCopy {
+public class NewFileCopybit {
     public static void main(String[] args) throws IOException {
         /*
         | 方法名称                         | 说明                   |
