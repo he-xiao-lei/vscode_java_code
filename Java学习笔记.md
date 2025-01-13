@@ -8368,5 +8368,20 @@ public class sortFile {
 
 ```
 
-### 字节缓冲流
+### 字节缓冲流拷贝文件(一次读写一个字节 )
+
+缓冲流
+
+![image-20250113132304520](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250113132304520.png)
+
+字节缓冲流
+
+原理：底层自带一个长度为8192的缓冲区来提高性能
+
+| 方法名称                                     | 说明                                     |
+| -------------------------------------------- | ---------------------------------------- |
+| public BufferedInputStream(InputStream is)   | 把基本流包装成高级流，提高读取数据的性能 |
+| public BufferedOutputStream(OutputStream os) | 把基本流包装成高级流，提高写出数据的性能 |
+
+### 字节缓冲流拷贝文件(一次读写一个字节数组 )
 
