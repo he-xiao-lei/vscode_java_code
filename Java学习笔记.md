@@ -8383,5 +8383,70 @@ public class sortFile {
 | public BufferedInputStream(InputStream is)   | 把基本流包装成高级流，提高读取数据的性能 |
 | public BufferedOutputStream(OutputStream os) | 把基本流包装成高级流，提高写出数据的性能 |
 
+代码BufferedStreamDemo1.java
+
+```java
+package IO.Buffered;
+
+import java.io.*;
+
+public class BufferedStreamDemo1 {
+    public static void main(String[] args) throws IOException {
+        //字节缓冲流拷贝文件
+        //创建缓冲区对象
+        BufferedInputStream fip = new BufferedInputStream(new FileInputStream("/home/hexiaolei/aaa/b.txt"));//可以手动制定缓冲区大小
+        BufferedOutputStream fop = new BufferedOutputStream(new FileOutputStream("/home/hexiaolei/aaa/b_result.txt"));
+        int b;
+        while ((b = fip.read()) != -1) {
+            fop.write(b);
+        }
+        fop.close();
+        fip.close();
+    }
+}
+```
+
+
+
 ### 字节缓冲流拷贝文件(一次读写一个字节数组 )
 
+代码BufferedStreamDemo2.java
+
+```java
+package IO.Buffered;
+
+import java.io.*;
+
+public class BufferedStreamDemo2 {
+    public static void main(String[] args) throws IOException {
+        //字节缓冲流拷贝文件(一次一个字节数组)
+
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream("/home/hexiaolei/aaa/b.txt"));
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("/home/hexiaolei/aaa/b_result.txt"));
+
+        int len;
+        byte[] bytes = new byte[512];//创建的字节数组
+        while ((len = bis.read(bytes)) != -1) {
+            bos.write(bytes, 0, len);
+        }
+        bos.close();
+        bis.close();
+    }
+}
+
+```
+
+### 字节缓冲流提高效率原理
+
+![image-20250113141717363](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250113141717363.png)
+
+### 字符缓冲流拷贝文件
+
+原理：底层自带了长度为8192的缓冲区提高性能
+
+| 方法名称                        | 说明               |
+| ------------------------------- | ------------------ |
+| public BufferedReader(Reader r) | 把基本流变成高级流 |
+| public BufferedWriter(Writer r) | 把基本流变成高级流 |
+
+![image-20250113142243770](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250113142243770.png)

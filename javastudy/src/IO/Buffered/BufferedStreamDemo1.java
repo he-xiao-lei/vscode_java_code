@@ -2,7 +2,7 @@ package IO.Buffered;
 
 import java.io.*;
 
-public class T1 {
+public class BufferedStreamDemo1 {
     public static void main(String[] args) throws IOException {
         //字节缓冲流拷贝文件
         //创建缓冲区对象
