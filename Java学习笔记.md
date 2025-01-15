@@ -8450,3 +8450,218 @@ public class BufferedStreamDemo2 {
 | public BufferedWriter(Writer r) | 把基本流变成高级流 |
 
 ![image-20250113142243770](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250113142243770.png)
+
+代码BufferedReader类
+
+```java
+package IO.Buffered;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class BufferedReaderDemo1 {
+    public static void main(String[] args) throws IOException {
+        /*
+            字符缓冲输入流
+            构造方法:
+            public BufferedReader(Reader r) 把基本流变成高级流
+            特有方法:
+            public void readLine() 读一整行
+         */
+        //1.创建字符缓冲流对象
+        BufferedReader brd = new BufferedReader(new FileReader("/home/hexiaolei/aaa/b.txt"));
+        //2.读取一行数据
+        //readLine读取一整行的数据，遇到回车换行就会结束
+        //不会把回车换行读取到内存中
+        String line;
+        //循环,如果没有读取到内容会返回null不是-1
+        while ((line = brd.readLine()) != null) {
+            System.out.println(line);
+        }
+        //关流
+        brd.close();
+    }
+}
+
+```
+
+代码:BufferedWriter类
+
+```java
+package IO.Buffered;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class BufferedWriterDemo1 {
+    public static void main(String[] args) throws IOException {
+        //1.创建字符缓冲输出流对象
+        BufferedWriter bw = new BufferedWriter(new FileWriter("/home/hexiaolei/aaa/b_result.txt"));
+        //2.写出数据
+        bw.write("fuck you");
+        //换行
+        bw.newLine();
+        bw.write("love you");
+        //3.关流
+        bw.close();
+
+    }
+}
+
+```
+
+### 综合练习
+
+#### 四种拷贝方式效率对比
+
+代码
+
+```java
+package IO.Test;
+
+import java.io.*;
+
+public class FourMethodCalculateFileTime {
+    public static void main(String[] args) throws IOException {
+        long start = System.currentTimeMillis();
+        //1.字节流，一次一个字节  结果：循环45亿次要很久
+//        method1();
+        //2.字节流，一次一个字节数组    结果:7s
+//        method2();
+        //3.缓冲字节流，一次一个字节    结果：52s
+        method3();
+        //4.缓冲字节流，一次一个字节数组  结果:6s
+//        method4();
+        long end = System.currentTimeMillis();
+        System.out.println((end-start)/1000+"秒");
+    }
+
+    public static void method1() throws IOException {
+        FileInputStream fr = new FileInputStream("/home/hexiaolei/download/iso_file/CentOS-7-x86_64-DVD-2009.iso");
+        FileOutputStream fw = new FileOutputStream("/home/hexiaolei/test.iso");
+        int b;
+        while ((b = fr.read()) != -1) {
+            fw.write(b);
+        }
+        fw.close();
+        fr.close();
+    }
+
+    public static void method2() throws IOException {
+        FileInputStream fr = new FileInputStream("/home/hexiaolei/download/iso_file/CentOS-7-x86_64-DVD-2009.iso");
+        FileOutputStream fw = new FileOutputStream("/home/hexiaolei/test.iso");
+        int len;
+        byte[] bytes = new byte[8192];
+        while ((len = fr.read(bytes)) != -1) {
+            fw.write(bytes, 0, len);
+        }
+        fw.close();
+        fr.close();
+    }
+
+    public static void method3() throws IOException {
+        BufferedInputStream bi = new BufferedInputStream(new FileInputStream("/home/hexiaolei/download/iso_file/CentOS-7-x86_64-DVD-2009.iso"));
+        BufferedOutputStream bo = new BufferedOutputStream(new FileOutputStream("/home/hexiaolei/test.iso"));
+        int b;
+        while ((b = bi.read()) != -1) {
+            bo.write(b);
+        }
+        bo.close();
+        bi.close();
+    }
+
+    public static void method4() throws IOException {
+        BufferedInputStream bi = new BufferedInputStream(new FileInputStream("/home/hexiaolei/download/iso_file/CentOS-7-x86_64-DVD-2009.iso"));
+        BufferedOutputStream bo = new BufferedOutputStream(new FileOutputStream("/home/hexiaolei/test.iso"));
+        int len;
+        byte[] bytes = new byte[8192];
+        while ((len = bi.read(bytes)) != -1) {
+            bo.write(bytes,0,len);
+        }
+        bo.close();
+        bi.close();
+    }
+}
+
+```
+
+#### 恢复出师表顺序
+
+代码
+
+```java
+package IO.Test;
+
+import java.io.*;
+import java.util.Map;
+import java.util.TreeMap;
+
+public class csb {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader("/home/hexiaolei/aaa/csb.txt"));
+        BufferedWriter bw = new BufferedWriter(new FileWriter("/home/hexiaolei/aaa/csb_ok.txt"));
+        TreeMap<Integer, String> map = new TreeMap<>();
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] split = line.split("\\.");
+            int key = Integer.parseInt(split[0]);
+            //如果想要键是一整句话，可以把这个的split[1]写为line
+            String value = split[1];
+            map.put(key, value);
+        }
+
+//        map.forEach((x,y)-> System.out.println(x+":"+y));
+        for (Map.Entry<Integer, String> entry : map.entrySet()) {
+            //然后这里可以只写entry.getValue()
+            bw.write(entry.getKey() + "." + entry.getValue());
+            bw.newLine();
+        }
+        bw.close();
+        br.close();
+    }
+}
+
+```
+
+#### 计算程序执行次数
+
+代码
+
+```java
+package IO.Test;
+
+import java.io.*;
+
+public class CountTime {
+    public static void main(String[] args) throws IOException {
+        //IO使用原则：随用随创建
+        //1.关联文件
+        BufferedReader br = new BufferedReader(new FileReader("/home/hexiaolei/aaa/count.txt"));
+        //2.逻辑
+        String line = br.readLine();
+        int count = Integer.parseInt(line);
+        //表示又运行了一次
+        count++;
+        if (count >= 3) {
+            System.out.println("超过三次,请付费");
+        } else {
+            System.out.println("欢迎第"+count+"次使用");
+        }
+//        System.out.println(read);
+        BufferedWriter bw = new BufferedWriter(new FileWriter("/home/hexiaolei/aaa/count.txt"));
+        //写入时要加上双引号作为str字符串传入，否则如果直接传进去数字为转化为ascii码写入
+        bw.write(count+"");
+
+        //3.关流
+        br.close();
+        bw.close();
+    }
+}
+
+```
+
+### 转换流
+
+S
