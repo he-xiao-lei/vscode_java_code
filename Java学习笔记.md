@@ -8664,3 +8664,413 @@ public class CountTime {
 
 ### 转换流
 
+
+指定字符编码读取数据ConvertStreamDemo1
+
+代码
+
+```java
+package IO.ConvertStream;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+
+public class ConvertStreamDemo1 {
+    public static void main(String[] args) throws IOException {
+        /*
+        转换
+        在linux内将utf-8转换为gbk字符集命令为
+                 源编码   目标编码         源文件           目的文件
+        iconv -f utf-8 -t gbk example.txt > example.txt
+         */
+        //1.创建转换流对象，关联文件并且制定gbk字符集 （ 放弃）
+//        InputStreamReader isr = new InputStreamReader(new FileInputStream("/home/hexiaolei/aaa/gbk_file.txt"), "GBK");
+//        //2.读取数据
+//        int b;
+//        while ((b = isr.read()) != -1) {
+//            System.out.print((char) b);
+//        }
+//        //3.释放资源
+//        isr.close();
+        //需要掌握的方法
+        //指定字符编码读取数据
+        FileReader fr = new FileReader("/home/hexiaolei/aaa/gbk_file.txt", Charset.forName("GBK"));
+        int ch;
+        while ((ch=fr.read())!=-1){
+            System.out.print((char)ch);
+        }
+    }
+}
+```
+
+指定字符集写出数据ConvertStreamDemo2
+
+```java
+package IO.ConvertStream;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+
+public class ConvertStreamDemo2 {
+    public static void main(String[] args)throws IOException {
+        /*
+        利用转换流指定的字符编码写出数据
+         */
+        FileWriter fw = new FileWriter("/home/hexiaolei/aaa/out_gbk_file.txt", Charset.forName("GBK"));
+        fw.write("HelloWorld这是gbk编码的文件");
+        fw.close();
+    }
+}
+
+```
+
+读取gbk文件写出为utf-8ConvertStreamDemo3
+
+代码
+
+```java
+package IO.ConvertStream;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+public class ConvertStreamDemo3 {
+    public static void main(String[] args) throws IOException {
+        //读取gbk文件，写出为utf-8
+        FileReader fr = new FileReader("/home/hexiaolei/aaa/gbk_file.txt", Charset.forName("GBK"));
+        FileWriter fw = new FileWriter("/home/hexiaolei/aaa/gbk_file_out.txt", StandardCharsets.UTF_8);
+        int ch;
+        while ((ch = fr.read()) != -1) {
+            fw.write((char) ch);
+        }
+        fw.close();
+        fr.close();
+    }
+}
+```
+
+使用字节流读取一整行代码不乱码ConvertStreamDemo4
+
+代码
+
+```java
+package IO.ConvertStream;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class ConvertStreamDemo4 {
+    public static void main(String[] args) throws IOException {
+        //利用字节流读取文件中的数据，每次读一整行，而且不能出现乱码
+        ////1. 字节流在读取中文的时候，是会出现乱码的，但是字符流可以搞定
+        ////2. 字节流里面是没有读一整行的方法的，只有字符缓冲流才能搞定
+//        //字节流
+//        FileInputStream fis  = new FileInputStream("/home/hexiaolei/aaa/a.txt");
+//        //转换流
+//        InputStreamReader isr = new InputStreamReader(fis);
+//        //字符缓冲流
+//        BufferedReader br = new BufferedReader(isr);
+//        String line = br.readLine();
+//        System.out.println(line);
+//        br.close();
+
+        //最终代码
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("/home/hexiaolei/aaa/a.txt")));
+        String line;
+        while ((line=br.readLine())!=null){
+            System.out.println(line);
+        }
+        //使用字节流会乱码的代码
+//        FileInputStream fis = new FileInputStream("/home/hexiaolei/aaa/a.txt");
+//        int b;
+//        while ((b=fis.read())!=-1){
+//            System.out.println((char)b);
+//        }
+    }
+}
+```
+
+### 序列化流/对象操作输出流
+
+>  可以把Java对象写到本地文件中
+
+| 构造方法                                    | 说明                 |
+| ------------------------------------------- | -------------------- |
+| public ObjectOutputStream(OutputStream out) | 把基本流包装为高级流 |
+
+| 成员方法                                    | 说明                           |
+| ------------------------------------------- | ------------------------------ |
+| `public final void writeObject(Object obj)` | 把对象序列化（写出）到文件中去 |
+
+代码ObjectStreamDemo1类
+
+```java
+package IO.ObjectStream;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
+public class ObjectStreamDemo1 {
+    public static void main(String[] args) throws IOException {
+        //利用序列化流将一个对象写入到文件中
+        /*
+        | 构造方法                                    | 说明                 |
+| ------------------------------------------- | -------------------- |
+| public ObjectOutputStream(OutputStream out) | 把基本流包装为高级流 |
+
+| 成员方法                                    | 说明                           |
+| ------------------------------------------- | ------------------------------ |
+| `public final void writeObject(Object obj)` | 把对象序列化（写出）到文件中去 |
+         */
+        //1.创建对象
+        Student stu =new Student("hexiaolei",11);
+        //2.创建序列化流对象
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("/home/hexiaolei/aaa/object.txt"));
+        //3.写入数据
+        oos.writeObject(stu);
+        //4.关流
+        oos.close();
+    }
+}
+```
+
+Student类
+
+```java
+package IO.ObjectStream;
+
+import java.io.Serializable;
+
+
+/*
+Serializable类是没有抽象方法的，意思是标记型接口
+一旦实现了这个接口，那么就表示当前student类对象可以被序列化
+理解：
+一个物品的合格证
+ */
+public class Student implements Serializable {
+    private String name;
+    private int age;
+
+    public Student() {
+    }
+
+    public Student(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+
+```
+
+### 反序列化/对象操作输入流
+
+>  可以把序列化到本地文件的对象,读取到程序里面
+
+ 
+
+| 构造方法                                    | 说明               |
+| ------------------------------------------- | ------------------ |
+| `public ObjectInputStream(InputStream out)` | 把基本流变成高级流 |
+
+| 成员方法                     | 说明                                       |
+| ---------------------------- | ------------------------------------------ |
+| `public Object readObject()` | 把序列化到本地文件中的对象，读取到程序中来 |
+
+代码
+
+```java
+package IO.ObjectStream;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+public class ObjectStreamDemo2 {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        /*
+        > 可以把序列化到本地文件的对象,读取到程序里面
+
+
+
+| 构造方法                                    | 说明               |
+| ------------------------------------------- | ------------------ |
+| `public ObjectInputStream(InputStream out)` | 把基本流变成高级流 |
+
+| 成员方法                     | 说明                                       |
+| ---------------------------- | ------------------------------------------ |
+| `public Object readObject()` | 把序列化到本地文件中的对象，读取到程序中来 |
+         */
+
+        //创建反序列化对象，并且关联序列化到本地文件的对象
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/hexiaolei/aaa/object.txt"));
+        //读取对象并且强制转换
+        Student o = (Student) ois.readObject();
+        //打印对象
+        System.out.println(o);
+    }
+}
+
+```
+
+！！！Student类和上面的一样
+
+### 序列化和反序列化的使用细节
+
+序列化流/反序列化流的细节汇总
+
+ 1. 使用序列化流将对象写到文件时，需要让Javabean类实现Serializable接口。否则，会出现NotSerializableException异常
+
+2序列化流写到文件中的数据是不能修改的，一旦修改就无法再次读回来了
+
+ 3. 序列化对象后，修改了Javabean类，再次反序列化，会不会有问题？   - 会出问题，会抛出InvalidClassException异常  
+
+**解决方案**：给Javabean类添加serialVersionUID（序列号、版本号）
+
+ 4.如果一个对象中的某个成员变量的值不想被序列化，又该如何实现呢？   
+
+ **解决方案**：给该成员变量加transient关键字修饰，该关键字标记的成员变量不参与序列化过程 
+
+
+
+序列化类
+
+```java
+package IO.ObjectStream.test;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+
+public class test1 {
+    public static void main(String[] args) throws IOException {
+        //将多个自定义对象序列化到文件中,但是对象的个数不确定
+
+
+        //1.序列化多个对象
+        Student s1 = new Student("h", 1, "苏州");
+        Student s2 = new Student("x", 2, "北京");
+        Student s3 = new Student("l", 4, "南极");
+        //2.创建序列化流对象
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("/home/hexiaolei/aaa/student.txt"));
+        //在反序列化时不知道对象有几个的时候，可以在序列化时将对象都放入一个arraylist里面，然后序列化这个arraylist对象然后在读取时使用增强for即可
+        ArrayList<Student> list = new ArrayList<>();
+        list.add(s1);
+        list.add(s2);
+        list.add(s3);
+        oos.writeObject(list);
+        oos.close();
+    }
+}
+
+```
+
+反序列化类
+
+```java
+package IO.ObjectStream.test;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+
+public class Test2 {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        //创建反序列化流对象
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/hexiaolei/aaa/student.txt"));
+        ArrayList<Student> list= (ArrayList<Student>) ois.readObject();
+        for (Student student : list) {
+            System.out.println(student.toString());
+        }
+    }
+}
+
+```
+
+Student类
+
+```java
+package IO.ObjectStream.test;
+
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Student implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 8105601762390111265L;
+    private String name;
+    private int age;
+    private String address;
+
+    public Student() {
+    }
+
+    public Student(String name, int age, String address) {
+        this.name = name;
+        this.age = age;
+        this.address = address;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", address='" + address + '\'' +
+                '}';
+    }
+}
+
+```
+
