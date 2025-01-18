@@ -9074,3 +9074,147 @@ public class Student implements Serializable {
 
 ```
 
+### 字节打印流
+
+分类:打印流一般指的是：PrintStream(字节打印流),PrintWriter(字符打印流)类
+
+特点1：只能操作文件目的地，不操作数据源
+
+特点2：特有的写出方法可以实现，数据原样写出
+
+例如：打印：97 文件中:97
+
+打印true	文件中:true
+
+特点3：特有的写出方法可以实现自动刷新，自动换行
+
+打印一次数据 = 写出 + 换行 + 刷新
+
+没有缓冲区，所以自动刷新开不开启都一样
+
+字节打印流:
+
+| 构造方法                                                     | 说明                             |
+| ------------------------------------------------------------ | -------------------------------- |
+| public PrintStream(OutputStream/File/String)                 | 关联字节输出流 / 文件 / 文件路径 |
+| public PrintStream(String fileName, Charset charset)         | 指定字符编码                     |
+| public PrintStream(OutputStream out, boolean autoFlush)      | 自动刷新                         |
+| public PrintStream(OutputStream out, boolean autoFlush, String encoding) | 指定字符编码且自动刷新           |
+
+| 成员方法                                          | 说明                                       |
+| ------------------------------------------------- | ------------------------------------------ |
+| public void write(int b)                          | 常规方法：规则跟之前一样，将指定的字节写出 |
+| public void println(Xxx xx)                       | 特有方法：打印任意数据，自动刷新，自动换行 |
+| public void print(Xxx xx)                         | 特有方法：打印任意数据，不换行             |
+| public void printf(String format, Object... args) | 特有方法：带有占位符的打印语句，不换行     |
+
+代码
+
+```java
+package IO.PrintStream;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+
+public class PrintStreamDemo1 {
+    public static void main(String[] args) throws FileNotFoundException {
+        /*
+        | 构造方法                                                     | 说明                             |
+| ------------------------------------------------------------ | -------------------------------- |
+| public PrintStream(OutputStream/File/String)                 | 关联字节输出流 / 文件 / 文件路径 |
+| public PrintStream(String fileName, Charset charset)         | 指定字符编码                     |
+| public PrintStream(OutputStream out, boolean autoFlush)      | 自动刷新                         |
+| public PrintStream(OutputStream out, boolean autoFlush, String encoding) | 指定字符编码且自动刷新           |
+
+| 成员方法                                          | 说明                                       |
+| ------------------------------------------------- | ------------------------------------------ |
+| public void write(int b)                          | 常规方法：规则跟之前一样，将指定的字节写出 |
+| public void println(Xxx xx)                       | 特有方法：打印任意数据，自动刷新，自动换行 |
+| public void print(Xxx xx)                         | 特有方法：打印任意数据，不换行             |
+| public void printf(String format, Object... args) | 特有方法：带有占位符的打印语句，不换行     |
+         */
+        ///1.创建字节打印流对象
+        PrintStream ps = new PrintStream(new FileOutputStream("/home/hexiaolei/aaa/printstream.txt"),true, StandardCharsets.UTF_8);
+        //2.写出数据
+        ps.println(97);
+        ps.print(true);
+        ps.println();
+        ps.printf("%s 爱上了 %s","wwww","aaa");
+        ps.close();
+    }
+}
+
+```
+
+### 字符打印流
+
+因为底层有缓冲区所以想要使用自动刷新就必须手动开启
+
+| 构造方法                                                     | 说明                             |
+| ------------------------------------------------------------ | -------------------------------- |
+| public PrintWriter(Write/File/String)                        | 关联字节输出流 / 文件 / 文件路径 |
+| public PrintWriter(String fileName, Charset charset)         | 指定字符编码                     |
+| public PrintWriter(Write w, boolean autoFlush)               | 自动刷新                         |
+| public PrintWriter(OutputStream out, boolean autoFlush, Charset charset) | 指定字符编码且自动刷新           |
+
+| 成员方法                                          | 说明                                         |
+| ------------------------------------------------- | -------------------------------------------- |
+| public void write(...)                            | 常规方法：规则跟之前一样，写出字节或者字符串 |
+| public void println(Xxx xx)                       | 特有方法：打印任意类型的数据并且换行         |
+| public void print(Xxx xx)                         | 特有方法：打印任意类型的数据，不换行         |
+| public void printf(String format, Object... args) | 特有方法：带有占位符的打印语句               |
+
+代码
+
+```java
+package IO.PrintStream;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class PrintStreamDemo2 {
+    public static void main(String[] args) throws IOException {
+        /*
+        构造方法	说明
+public PrintWriter(Write/File/String)	关联字节输出流 / 文件 / 文件路径
+public PrintWriter(String fileName, Charset charset)	指定字符编码
+public PrintWriter(Write w, boolean autoFlush)	自动刷新
+public PrintWriter(OutputStream out, boolean autoFlush, Charset charset)	指定字符编码且自动刷新
+成员方法	说明
+public void write(...)	常规方法：规则跟之前一样，写出字节或者字符串
+public void println(Xxx xx)	特有方法：打印任意类型的数据并且换行
+public void print(Xxx xx)	特有方法：打印任意类型的数据，不换行
+public void printf(String format, Object... args)	特有方法：带有占位符的打印语句
+         */
+        //1.创建字符打印流对象
+        PrintWriter pw = new PrintWriter(new FileWriter("/home/hexiaolei/aaa/printwriter.txt"),true);
+        //2.写出数据
+        pw.println("你好我是hhh");
+        //只打印，不换行
+        pw.print("aaa");
+        pw.printf("%s fuck %s","a","b");
+        pw.close();
+    }
+}
+
+```
+
+字节打印流和输出语句sout的关系
+
+```java
+ //获取打印流的对象，此打印流在虚拟机启动的时候，由虚拟机创建，默认指向控制台
+        //特殊的打印流，系统中的标准输出流,不能被关闭
+        PrintStream out = System.out;
+        out.println("aaa");
+```
+
+
+
+### 解压缩流
+
+压缩包里面每一个文件都是一个zipentry对象
+
+解压本质:把每个把ZipEntry按照层级拷贝到本地另外一个文件夹中
