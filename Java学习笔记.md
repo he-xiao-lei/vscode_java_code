@@ -9218,3 +9218,6 @@ public void printf(String format, Object... args)	特有方法：带有占位符
 压缩包里面每一个文件都是一个zipentry对象
 
 解压本质:把每个把ZipEntry按照层级拷贝到本地另外一个文件夹中
+
+Java只能识别zip压缩包
+
