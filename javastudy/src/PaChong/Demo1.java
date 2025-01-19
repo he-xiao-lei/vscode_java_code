@@ -22,9 +22,10 @@ public class Demo1 {
         String boyName = webClawler(str2);
         String girlName = webClawler(str3);
         //获取需要的数据（正则表达式）
-        for (String s : getDate(familyName, "[\\u4e00-\\u9fa5]{4}(，| 。)")) {
-            System.out.println(s);
-        }
+        ArrayList<String> date = getDate(familyName, "[\\u4e00-\\u9fa5]{4}(，|。)");
+        String string = date.toString();
+        System.out.println(string);
+
 //        System.out.println(s);
 //        System.out.println(boyName);
 //        System.out.println(girlName);
@@ -53,7 +54,7 @@ public class Demo1 {
         Matcher matcher = pattern.matcher(date);
         while (matcher.find()){
             String group = matcher.group();
-            list.add(group);
+            list.add(group.substring(0,4));
         }
 
         return list;
