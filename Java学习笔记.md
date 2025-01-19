@@ -9250,3 +9250,116 @@ Commons-io使用步骤
 | public static int copyLarge(Reader input, Writer output)     | 复制大文件 |
 | public static String readLines(Reader input)                 | 读取数据   |
 | public static void write(String data, OutputStream output)   | 写出数据   |
+
+简单代码
+
+```java
+package CommonsIO;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class CommonsIODemo1 {
+    public static void main(String[] args) throws IOException {
+        /*
+        | FileUtils 类（文件 / 文件夹相关）                            | 说明                       |
+| ------------------------------------------------------------ | -------------------------- |
+| static void copyFile(File srcFile, File destFile)            | 复制文件                   |
+| static void copyDirectory(File srcDir, File destDir)         | 复制文件夹                 |
+| static void copyDirectoryToDirectory(File srcDir, File destDir) | 复制文件夹                 |
+| static void deleteDirectory(File directory)                  | 删除文件夹                 |
+| static void cleanDirectory(File directory)                   | 清空文件夹                 |
+| static String readFileToString(File file, Charset encoding)  | 读取文件中的数据变成字符串 |
+| static void write(File file, CharSequence data, String encoding) | 写出数据                   |
+
+| IOUtils 类（流相关）                                         | 说明       |
+| ------------------------------------------------------------ | ---------- |
+| public static int copy(InputStream input, OutputStream output) | 复制文件   |
+| public static int copyLarge(Reader input, Writer output)     | 复制大文件 |
+| public static String readLines(Reader input)                 | 读取数据   |
+| public static void write(String data, OutputStream output)   | 写出数据   |
+         */
+
+        FileUtils.copyFile(new File("/home/hexiaolei/aaa/a.txt"),new File("/home/hexiaolei/bbb/bbb.txt"));
+        FileUtils.copyDirectoryToDirectory(new File("/home/hexiaolei/aaa"),new File("/home/hexiaolei/aaa/b"));
+        IOUtils.copy(new FileReader("/home/hexiaolei/download/iso_file/CentOS-7-x86_64-DVD-2009.iso"),new FileWriter("/home/hexiaolei/aaa.iso"));
+    }
+}
+
+```
+
+commons-io文档在idea中的commonsIO包中
+
+### IO流-43-常用工具包HuTool
+
+| 相关类            | 说明                            |
+| ----------------- | ------------------------------- |
+| IoUtil            | 流操作工具类                    |
+| FileUtil          | 文件读写和操作的工具类          |
+| FileTypeUtil      | 文件类型判断工具类              |
+| WatchMonitor      | 目录、文件监听                  |
+| ClassPathResource | 针对 ClassPath 中资源的访问封装 |
+| FileReader        | 封装文件读取                    |
+| FileWriter        | 封装文件写入                    |
+
+[Hutool官网](https://www.hutool.cn/docs/#/)
+
+简单代码示例
+
+```java
+package Hutool;
+
+import cn.hutool.core.io.FileUtil;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public class HutoolDemo2 {
+    public static void main(String[] args) {
+        /*
+        FileUtil类:
+ - file：根据参数创建一个file对象
+ - touch：根据参数创建文件
+ - writeLines：把集合中的数据写出到文件中，覆盖模式。
+ - appendLines：把集合中的数据写出到文件中，续写模式。
+ - readLines：指定字符编码，把文件中的数据，读到集合中。
+ - readUtf8Lines：按照UTF - 8的形式，把文件中的数据，读到集合中
+ - copy：拷贝文件或者文件夹
+         */
+        File file = FileUtil.file(new File("/home/hexiaolei/aaa"), "b", "c", "d", "fuck.txt");
+        System.out.println(file);///home/hexiaolei/aaa/b/c/d/fuck.txt
+
+        File touch = new File("/home/hexiaolei/xxx/xxx/xxx/a.txt");
+        //touch命令，如果父级路径不存在，那么会自动创建
+        FileUtil.touch(touch);
+
+
+        //将集合写入文件
+
+        Set<Map.Entry<String, String>> entries = System.getenv().entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            System.out.println(entry.getKey());
+        }
+        //writeLines会覆盖之前的内容
+        FileUtil.writeLines(entries,"/home/hexiaolei/aaa/env.txt", StandardCharsets.UTF_8);
+        //读取文件内容到集合
+        List<String> strings = FileUtil.readLines("/home/hexiaolei/aaa/env.txt", StandardCharsets.UTF_8);
+        for (String string : strings) {
+            System.out.println(string);
+        }
+
+    }
+}
+
+```
+
+### 综合练习01-网络爬虫（爬取姓氏）
+

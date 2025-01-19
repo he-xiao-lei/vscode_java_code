@@ -10,5 +10,6 @@
     <orderEntry type="library" name="gson-2.10.1" level="project" />
     <orderEntry type="library" name="junit-platform-console-standalone-1.10.2" level="project" />
     <orderEntry type="library" name="commons-io-2.18.0" level="project" />
+    <orderEntry type="library" name="hutool-all-5.8.16" level="project" />
   </component>
 </module>
