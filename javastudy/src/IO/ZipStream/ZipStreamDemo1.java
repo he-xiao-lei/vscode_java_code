@@ -46,7 +46,7 @@ public class ZipStreamDemo1 {
                     fos.close();
                     zip.closeEntry();
                 }
-                FileOutputStream fos = new FileOutputStream(new File())
+//                FileOutputStream fos = new FileOutputStream(new File())
         }
     }
 }
