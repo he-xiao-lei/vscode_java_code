@@ -22,10 +22,14 @@ public class Demo1 {
         String boyName = webClawler(str2);
         String girlName = webClawler(str3);
         //获取需要的数据（正则表达式）
-        ArrayList<String> date = getDate(familyName, "[\\u4e00-\\u9fa5]{4}(，|。)");
+        ArrayList<String> date = getDate(familyName, "([\\u4e00-\\u9fa5]{4})((，|。))",1);
         String string = date.toString();
         System.out.println(string);
 
+
+        ArrayList<String> date1 = getDate(boyName, "(..)(、|。)",1);
+        String string1 = date1.toString();
+        System.out.println(string1);
 //        System.out.println(s);
 //        System.out.println(boyName);
 //        System.out.println(girlName);
@@ -45,7 +49,7 @@ public class Demo1 {
 
         ArrayList用来作临时的储存
      */
-    private static ArrayList<String> getDate(String date, String regex) {
+    private static ArrayList<String> getDate(String date, String regex,int index) {
         //创建几个存储数据
         ArrayList<String> list = new ArrayList<>();
         //按照正则表达式规则，去获取数据
@@ -53,8 +57,8 @@ public class Demo1 {
         //按照pattern的规则到str里获取数据
         Matcher matcher = pattern.matcher(date);
         while (matcher.find()){
-            String group = matcher.group();
-            list.add(group.substring(0,4));
+            String group = matcher.group(index);
+            list.add(group);
         }
 
         return list;
