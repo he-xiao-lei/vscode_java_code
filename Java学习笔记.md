@@ -9363,3 +9363,303 @@ public class HutoolDemo2 {
 
 ### 综合练习01-网络爬虫（爬取姓氏）
 
+跳过
+
+
+
+
+
+
+
+
+
+## 多线程 & JUC
+
+### 多线程&JUC-01-什么是多线程
+
+线程
+
+>  线程是操作系统能够进行运算调度的最小单位。他被包含在**进程**之中，是进程中的实际运作单位
+
+进程
+
+> 进程是程序的基本执行实体
+
+简单理解：应用软件中互相独立的，可以同时运行的功能
+
+多线程应用场景
+
+软件中的耗时操作
+
+- 拷贝，迁移大文件
+- 加载大量的资源文件
+
+总结 : 
+
+1. 什么是多线程？
+   有了多线程，我们就可以让程序同时做多件事情
+2. 多线程的作用？
+   提高效率
+3. 多线程的应用场景？
+   只要你想让多个事情同时运行就需要用到多线程
+   比如：软件中的耗时操作、所有的聊天软件、所有的服务器
+
+### 多线程&JUC-02-并发和并行
+
+并发：在同一时刻，有多个指令在单个CPU上==交替==执行
+
+并行：在同一时刻，有多个指令同时在多个CPU上==同时==执行
+
+### 多线程&JUC-03-多线程的第一种实现方式
+
+1. 继承Thread类的方式进行实现
+2. 实现Runnable接口的方式进行实现
+3. 利用Callable接口和Future接口方式实现
+
+ MyThreadDemo1
+
+代码
+
+```java
+package MultipleThread;
+
+public class MyThreadDemo1 extends Thread{
+
+    @Override
+    public void run() {
+        //书写线程需要执行的代码
+        for (int i = 0; i < 1000; i++) {
+            System.out.println("我是"+getName()+"HelloWorld");
+        }
+    }
+}
+
+```
+
+MultipleThreadDemo1
+
+代码
+
+```java
+package MultipleThread;
+
+public class MultipleTreadDemo1 {
+    public static void main(String[] args) {
+        //start()表示开启线程
+        MyThreadDemo1 myThreadDemo1 = new MyThreadDemo1();
+        MyThreadDemo1 myThreadDemo2 = new MyThreadDemo1();
+        myThreadDemo1.setName("线程1");
+        myThreadDemo2.setName("线程2");
+        myThreadDemo1.start();
+        myThreadDemo2.start();
+
+    }
+}
+
+```
+
+### 多线程&JUC-03-多线程的第二种实现方式
+
+实现Runnable接口的方式实现的
+
+MultipleThreadDemo2
+
+代码
+
+```java
+package MultipleThread;
+
+public class MultipleThreadDemo2 {
+    public static void main(String[] args) {
+        /*
+        多线程的第二种启动方式
+         1.自己创建一个类继承Runnable接口
+         2.重写里面的run方法
+         3.创建一个类的对象
+         4.创建一个Thread类对象并且把自己创建的类放进去，然后开启线程
+         */
+        //创建MyThreadDemo2的对象
+        MyThreadDemo2 myThreadDemo2 = new MyThreadDemo2();
+        //创建线程对象
+        Thread t1 = new Thread(myThreadDemo2);
+        Thread t2 = new Thread(myThreadDemo2);
+        //设置名字
+        t1.setName("t1");
+        t2.setName("t2");
+        t1.start();
+        t2.start();
+    }
+}
+
+
+```
+
+MyThreadDemo2
+
+代码
+
+```java
+package MultipleThread;
+
+public class MyThreadDemo2 implements Runnable{
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 10; i++) {//t1 t2 如果是t1执行到这个方法，那这里的t就是t1
+            //获取当前线程的对象
+            Thread t = Thread.currentThread();
+            System.out.println(t.getName()+"---"+i);
+        }
+    }
+}
+
+```
+
+### 多线程&JUC-03-多线程的第三种实现方式
+
+利用Callable接口和Future接口方式实现
+
+MyCallable类
+
+代码
+
+```java
+package MultipleThread;
+
+import java.util.Map;
+import java.util.concurrent.Callable;
+
+public class MyCallable implements Callable<Map<String,String>> {
+
+    @Override
+    public Map<String, String> call() throws Exception {
+        //求环境变量中总共有几个键和几个值
+           return System.getenv();
+    }
+}
+
+```
+
+MultipleThredDemo3
+
+代码
+
+```java
+package MultipleThread;
+
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+public class MultipleThreadDemo3 {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+/*
+    多线程第三种实现方式:
+        特点：可以获取到多线程运行返回的结果
+         1. 创建一个类MyCallable实现Callable接口
+         2. 重写call()方法,有返回值，表示多线程返回的结果
+         3. 测试类中，先创建MyCallable对象(表示多线程要执行的任务)
+         4. 创建FutureTask对象(作用是管理多线程运行的结果)
+         5. 创建Thread对象,并且启动
+         6.启动
+     */
+        MyCallable myCallable = new MyCallable();
+        FutureTask<Map<String,String>> futureTask = new FutureTask<>(myCallable);
+        Thread thread = new Thread(futureTask);
+        thread.start();
+        //方法作用是获取多线程的结果
+        System.out.println("futureTask.get() = " + futureTask.get());
+    }
+}
+
+```
+
+|                                       |                                              |                                              |
+| ------------------------------------- | -------------------------------------------- | -------------------------------------------- |
+| 优点                                  | 缺点                                         |                                              |
+| 继承 Thread 类                        | 编程比较简单，可以直接使用 Thread 类中的方法 | 扩展性较差，不能再继承其他的类               |
+| 实现 Runnable 接口/实现 Callable 接口 | 扩展性强，实现该接口的同时还可以继承其他的类 | 编程相对复杂，不能直接使用 Thread 类中的方法 |
+
+### 多线程&JUC-03-多线程中常见的成员方法
+
+常见成员方法 
+
+| 方法名称                         | 说明                                     |
+| -------------------------------- | ---------------------------------------- |
+| String getName()                 | 返回此线程的名称                         |
+| void setName(String name)        | 设置线程的名字（构造方法也可以设置名字） |
+| static Thread currentThread()    | 获取当前线程的对象                       |
+| static void sleep(long time)     | 让线程休眠指定的时间，单位为毫秒         |
+| setPriority(int newPriority)     | 设置线程的优先级                         |
+| final int getPriority()          | 获取线程的优先级                         |
+| final void setDaemon(boolean on) | 设置为守护线程                           |
+| public static void yield()       | 出让线程 / 礼让线程                      |
+| public static void join()        | 插入线程 / 插队线程                      |
+
+MyThreadDemo1代码
+
+```java
+package MultipleThread.MyThreadMethod;
+
+public class MyThreadDemo1 {
+    public static void main(String[] args) throws InterruptedException {
+        //常见成员方法
+        /*
+                String getName () 返回此线程的名称
+                void setName (String name)设置线程的名字（构造方法也可以设置名字）
+                细节：
+                    如果没有给线程设置名字，线程也是由默认名字的，格式为:Thread-(id)从0开始
+                    如果要给线程设置名字，可以用set方法设置，也可以通过构造方法实现(构造方法不可以继承，需要使用super)
+                static Thread currentThread ()获取当前线程的对象
+                细节：
+                    当JVM启动以后，会启动多条线程，
+                    其中有一条就叫main他的作用就是调用main方法，并执行里面的代码
+                    之前编写的所有方法都是运行在main线程中
+
+                static void sleep (long time)让线程休眠指定的时间，单位为毫秒
+                细节：
+                    1.哪条线程执行到这个方法，哪条线程就会在这里停留对应的时间
+                    2.停留时间跟参数有关
+                    3.当时间到了以后线程会自动醒来然后执行接下来的代码
+         */
+        Thread.sleep(5000);
+        MyThread thread1 = new MyThread("线程1");
+        MyThread thread2 = new MyThread("线程2");
+        thread1.start();
+        thread2.start();
+        new Thread(()-> System.out.println("Fuck"),"线程3").start();
+    }
+}
+
+```
+
+MyThread代码
+
+```java
+package MultipleThread.MyThreadMethod;
+
+public class MyThread extends Thread{
+    public MyThread() {
+        super();
+    }
+
+    public MyThread(String name) {
+        super(name);
+    }
+
+    @Override
+    public void run() {
+        for (int j = 0; j < 100; j++) {
+            try {
+                Thread.sleep(100);
+                System.out.println("休眠了100毫秒");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println(getName()+"@"+j);
+        }
+    }
+}
+
+```
+
