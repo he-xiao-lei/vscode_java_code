@@ -9458,7 +9458,7 @@ public class MultipleTreadDemo1 {
 
 ```
 
-### 多线程&JUC-03-多线程的第二种实现方式
+### 多线程&JUC-04-多线程的第二种实现方式
 
 实现Runnable接口的方式实现的
 
@@ -9515,7 +9515,7 @@ public class MyThreadDemo2 implements Runnable{
 
 ```
 
-### 多线程&JUC-03-多线程的第三种实现方式
+### 多线程&JUC-05-多线程的第三种实现方式
 
 利用Callable接口和Future接口方式实现
 
@@ -9580,7 +9580,7 @@ public class MultipleThreadDemo3 {
 | 继承 Thread 类                        | 编程比较简单，可以直接使用 Thread 类中的方法 | 扩展性较差，不能再继承其他的类               |
 | 实现 Runnable 接口/实现 Callable 接口 | 扩展性强，实现该接口的同时还可以继承其他的类 | 编程相对复杂，不能直接使用 Thread 类中的方法 |
 
-### 多线程&JUC-03-多线程中常见的成员方法
+### 多线程&JUC-06-多线程中常见的成员方法
 
 常见成员方法 
 
@@ -9657,6 +9657,225 @@ public class MyThread extends Thread{
                 throw new RuntimeException(e);
             }
             System.out.println(getName()+"@"+j);
+        }
+    }
+}
+
+```
+
+### 多线程&JUC-07-线程的优先级
+
+| 方法                         | 解释             |
+| ---------------------------- | ---------------- |
+| setPriority(int newPriority) | 设置线程的优先级 |
+| final int getPriority()      | 获取线程的优先级 |
+
+测试类
+
+```java
+package MultipleThread.PriorityThread;
+
+public class Demo1 {
+    public static void main(String[] args) {
+        //创建线程要执行的参数对象
+        ThreadDemo1 threadDemo1 = new ThreadDemo1();
+        //创建线程
+        Thread t1 = new Thread(threadDemo1, "坦克");
+        Thread t2 = new Thread(threadDemo1, "飞机");
+
+        System.out.println("t1.getPriority() = " + t1.getPriority());//线程默认优先级是5
+        System.out.println("t2.getPriority() = " + t2.getPriority());//线程默认优先级是5
+        t1.setPriority(1);
+        t2.setPriority(10);
+//        Thread thread = new Thread();main线程
+//        System.out.println("main线程优先级 = " + thread.getPriority());
+        t1.start();
+        t2.start();
+    }
+}
+
+```
+
+线程类（继承Runnable）
+
+```java
+package MultipleThread.PriorityThread;
+
+public class ThreadDemo1 implements Runnable{
+
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 100; i++) {
+            System.out.println(Thread.currentThread().getName()+" "+i);
+        }
+    }
+}
+```
+
+### 多线程&JUC-08-守护线程
+
+| 方法名                           | 解释           |
+| -------------------------------- | -------------- |
+| final void setDaemon(boolean on) | 设置为守护线程 |
+
+测试类代码
+
+```java
+package MultipleThread.DaemonThread;
+
+public class DaemonThreadDemo {
+
+    public static void main(String[] args) {
+    /*
+        final void setDaemon(boolean on)设置为守护线程
+        细节：
+            当其他非守护线程执行完毕以后，守护线程会陆续结束
+        通俗易懂的解释:
+            当非守护线程结束了，守护线程也会结束j
+   */
+        DaemonThread1 thread1 = new DaemonThread1();
+        DaemonThread2 thread2 = new DaemonThread2();
+        thread1.setName("女神");
+        thread2.setName("备胎");
+
+        //把第二个线程设置为守护线程
+        thread2.setDaemon(true);
+
+
+        thread1.start();
+        thread2.start();
+
+
+    }
+}
+
+```
+
+
+
+线程1代码 
+
+```java
+package MultipleThread.DaemonThread;
+
+public class DaemonThread1 extends Thread{
+    @Override
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            System.out.println(getName()+" "+i);
+        }
+    }
+}
+
+```
+
+线程2代码
+
+```java
+package MultipleThread.DaemonThread;
+
+public class DaemonThread2 extends Thread{
+    @Override
+    public void run() {
+        for (int i = 0; i < 100; i++) {
+            System.out.println(getName()+" "+i);
+        }
+    }
+}
+```
+
+### 多线程&JUC-09-礼让线程
+
+| 方法                       | 解释                |
+| -------------------------- | ------------------- |
+| public static void yield() | 出让线程 / 礼让线程 |
+| public static void join()  | 插入线程 / 插队线程 |
+
+测试类代码
+
+```java
+package MultipleThread.YieldThread;
+
+public class ThreadDemo {
+    public static void main(String[] args) {
+        //yield礼让线程
+
+        MyThread thread1 = new MyThread();
+        MyThread thread2 = new MyThread();
+
+
+        thread1.setName("张三");
+        thread2.setName("李四");
+
+        thread1.start();
+        thread2.start();
+    }
+}
+
+```
+
+线程代码
+
+```java
+package MultipleThread.YieldThread;
+
+public class MyThread extends Thread {
+    @Override
+    public void run() {//有可能出让以后又抢到了，所以只能是尽可能均匀
+        for (int i = 0; i < 100; i++) {
+            System.out.println(getName()+" "+i);
+            //表示出让当前CPU使用权,简单理解，用的不多
+            Thread.yield();
+        }
+    }
+}
+
+```
+
+### 多线程&JUC-10-插入线程
+
+| 方法                      | 解释                |
+| ------------------------- | ------------------- |
+| public static void join() | 插入线程 / 插队线程 |
+
+
+
+测试类代码
+
+```java
+package MultipleThread.InsertThread;
+
+public class Demo {
+    public static void main(String[] args) throws InterruptedException {
+        DemoThread t1 = new DemoThread();
+        t1.setName("土豆");
+        t1.start();
+
+        //表示把t1这个线程插入到当前线程之前
+        //t1表示土豆线程,当前线程表示main线程
+        t1.join();
+
+
+        //执行再main线程上的
+        for (int i = 0; i < 10; i++) {
+            System.out.println("main线程"+i);
+        }
+    }
+}
+
+```
+
+线程代码
+
+```java
+package MultipleThread.InsertThread;
+
+public class DemoThread extends  Thread{
+    @Override
+    public void run() {
+        for (int i = 0; i < 100; i++) {
+            System.out.println(getName()+" "+i);
         }
     }
 }
