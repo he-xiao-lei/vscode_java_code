@@ -9882,3 +9882,145 @@ public class DemoThread extends  Thread{
 
 ```
 
+### 多线程&JUC-11-线程的生命周期
+
+![image-20250125095003741](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250125095003741.png)
+
+### 多线程&JUC-12-线程的安全问题
+
+测试类代码
+
+```java
+package MultipleThread.ThreadSecurity;
+
+public class Demo {
+    public static void main(String[] args) {
+        /*三个售票点同时卖100张票*/
+        MyThread thread = new MyThread();
+        MyThread thread1 = new MyThread();
+        MyThread thread2 = new MyThread();
+        //起名字
+        thread.setName("窗口1");
+        thread1.setName("窗口2");
+        thread2.setName("窗口3");
+        thread.start();
+        thread1.start();
+        thread2.start();
+    }
+}
+
+```
+
+线程代码
+
+```java
+package MultipleThread.ThreadSecurity;
+
+public class MyThread extends Thread {
+    static int tickets;//这个类的所有对象，共享tickets这个变量
+
+    @Override
+    public void run() {
+        while (true) {
+            if (tickets < 100) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                tickets++;
+                System.out.println(getName() + "正在卖第" + tickets + "张票");
+            } else {
+                break;
+            }
+        }
+    }
+}
+```
+
+执行完毕会发现
+
+![image-20250125100618045](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250125100618045.png)
+
+有重复和超售的
+
+### 多线程&JUC-13-同步代码块
+
+线程在执行时，有随机性
+
+同步代码块
+
+把操作共享数据的代码锁起来
+
+格式
+
+```java
+synchronized(锁){
+    操作共享数据的代码
+}
+```
+
+- 特点1：锁默认打开，有一个线程进去了，锁自动关闭
+- 特点2：里面的代码全部执行完毕，线程出来，锁自动打开
+
+
+
+线程代码
+
+```java
+package MultipleThread.ThreadSecurity;
+
+public class MyThread extends Thread {
+    static int tickets;//这个类的所有对象，共享tickets这个变量
+
+    @Override
+    public void run() {
+        while (true) {
+            //里面写锁对象,一定是唯一的
+            synchronized (MyThread.class) {
+                if (tickets < 100) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    tickets++;
+                    System.out.println(getName() + "正在卖第" + tickets + "张票");
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+}
+```
+
+测试类代码和上面一个一样
+
+syncronized代码块不可以写在循环外面，否则一个线程抢到以后，直接循环完100次就结束了
+
+ 
+
+### 多线程&JUC-14-同步方法
+
+​	就是直接把synchroized关键字加到方法上
+
+格式:
+
+```java
+修饰符 synchronized 返回值类型 方法名(方法参数){
+    代码
+}
+```
+
+
+
+特点1：同步方法是锁住方法里面的所有代码
+
+特点2：锁对象不可以自己指定
+
+非静态：this
+
+静态：当前类的字节码文件
+
+ 
