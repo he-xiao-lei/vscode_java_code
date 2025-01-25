@@ -10023,4 +10023,56 @@ syncronized代码块不可以写在循环外面，否则一个线程抢到以后
 
 静态：当前类的字节码文件
 
- 
+ 线程代码
+
+```java
+package MultipleThread.synchronizedMethod;
+
+public class MyThread implements Runnable {
+    int tickets;
+    //这里的锁对象是this
+    private synchronized boolean sellTickets() {
+        if (tickets == 100) {
+            //
+            return true;
+        } else {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            tickets++;
+            System.out.println(Thread.currentThread().getName() + "正在卖第" + tickets + "张票");
+        }
+        return false;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            if (sellTickets()) break;
+        }
+    }
+}
+```
+
+测试类代码
+
+```java
+package MultipleThread.synchronizedMethod;
+
+public class Demo {
+    public static void main(String[] args) {
+        MyThread myThread = new MyThread();
+
+        Thread thread = new Thread(myThread, "线程1");
+        Thread thread1 = new Thread(myThread, "线程2");
+        Thread thread2 = new Thread(myThread, "线程3");
+        thread.start();
+        thread1.start();
+        thread2.start();
+    }
+}
+
+```
+
