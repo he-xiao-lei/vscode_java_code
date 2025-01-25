@@ -9917,7 +9917,7 @@ public class Demo {
 package MultipleThread.ThreadSecurity;
 
 public class MyThread extends Thread {
-    static int tickets;//这个类的所有对象，共享tickets这个变量
+    static int tickets;//静态的，这个类的所有对象，共享tickets这个变量
 
     @Override
     public void run() {
@@ -10075,4 +10075,114 @@ public class Demo {
 }
 
 ```
+
+StringBuilder和StringBuffer的区别
+
+> StringBuilder是线程不安全的，而StringBuffer是线程安全的
+>
+> 因为后者每个方法都加上了`synchronized`关键字作为同步方法
+>
+> 少量字符串String
+>
+> 多线程多字符串用StringBuffer
+>
+> 单线程多字符串用StringBuilder
+
+### 多线程&JUC-15-lock锁
+
+Lock 锁
+
+> 虽然我们可以理解同步代码块和同步方法的锁对象问题，但是我们并没有直接看到在哪里加上了锁，在哪里释放了锁，为了更清晰的表达如何加锁和释放锁，JDK5 以后提供了一个新的锁对象 Lock。
+>
+> Lock 实现提供比使用 synchronized 方法和语句可以获得更广泛的锁定操作。
+> Lock 中提供了获得锁和释放锁的方法：
+> void lock ()：获得锁
+> void unlock ()：释放锁
+>
+> Lock 是接口不能直接实例化，这里采用它的实现类 ReentrantLock 来实例化。
+> ReentrantLock 的构造方法：
+> ReentrantLock ()：创建一个 ReentrantLock 的实例
+
+线程类代码
+
+```java
+package MultipleThread.ManualLock;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class MyThread extends Thread {
+    static int tickets;//这个类的所有对象，共享tickets这个变量
+
+    //创建锁对象
+    static Lock lock = new ReentrantLock();
+
+    @Override
+    public void run() {
+        while (true) {
+//            synchronized (MyThread.class) {
+            lock.lock();
+
+            try {
+                if (tickets == 100000) {
+                    break;
+                } else {
+                    Thread.sleep(1);
+                    tickets++;
+                    System.out.println(getName() + "正在卖第" + tickets + "张票");
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } finally {
+                //不管怎么样都会执行
+                lock.unlock();
+            }
+        }
+    }
+
+
+//            }
+}
+```
+
+测试类代码
+
+```java
+package MultipleThread.ManualLock;
+
+public class Demo {
+    public static void main(String[] args) {
+        //因为这里创建的只是==一个==运行参数的对象，所以里面的参数是共用的，就不用加上static
+        MyThread myThread = new MyThread();
+        MyThread myThread1 = new MyThread();
+        MyThread myThread2 = new MyThread();
+
+
+        myThread.start();
+        myThread1.start();
+        myThread2.start();
+    }
+}
+
+```
+
+### 多线程&JUC-16-死锁
+
+[视频链接](https://www.bilibili.com/video/BV1yW4y1Y7Ms?spm_id_from=333.788.videopod.episodes&vd_source=1ccba1a6b3eadfbb0030ea5a1ef96dd4&p=151)，死锁简单来首就是不要锁嵌套
+
+### 多线程&JUC-17-等待唤醒机制
+
+生产者和消费者(等待唤醒机制)
+
+核心思想:
+
+![image-20250125201225563](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250125201225563.png)
+
+| 方法名称         | 说明                             |
+| ---------------- | -------------------------------- |
+| void wait()      | 当前线程等待，直到被其他线程唤醒 |
+| void notify()    | 随机唤醒单个线程                 |
+| void notifyAll() | 唤醒所有线程                     |
+
+### 多线程&JUC-18-等待唤醒机制（消费者代码）
 
