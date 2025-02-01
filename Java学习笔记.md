@@ -10184,5 +10184,714 @@ public class Demo {
 | void notify()    | 随机唤醒单个线程                 |
 | void notifyAll() | 唤醒所有线程                     |
 
-### 多线程&JUC-18-等待唤醒机制（消费者代码）
+### 多线程&JUC-18-等待唤醒机制
+
+整体代码
+
+消费者
+
+```java
+package MultipleThread.waitandnotify;
+
+
+public class Foodie extends Thread {
+    //Consumer
+
+    @Override
+    public void run() {
+        /*
+        1.循环
+        2.synchronized
+        3.判断共享数据是否到了末尾(到了末尾)
+        4.判断共享数据是否到了末尾 (没有到末尾,执行核心逻辑)
+         */
+        while (true) {
+            synchronized (Desk.lock) {
+                if (Desk.count == 0) {
+                    break;
+                } else {
+                    // 先判断桌子上是否有面条
+                    if (Desk.foodFlag == 0) {
+                        // 如果没有，就等待
+                        try {
+                            Desk.lock.wait();//让当前线程被这个锁绑定，唤醒的时候就可以操作了
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        // 把吃的总数 - 1
+                        Desk.count--;
+                        // 如果有，就开吃
+                        System.out.println("吃了一碗面条还可以吃" + Desk.count + "碗面条");
+                        // 吃完之后，唤醒厨师继续做
+                        Desk.lock.notify();
+                        // 修改桌子的状态
+                        Desk.foodFlag = 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+```
+
+生产者
+
+```java
+package MultipleThread.waitandnotify;
+
+public class Cook extends Thread {
+    //producer
+    /*
+        1.循环
+        2.synchronized
+        3.判断共享数据是否到了末尾(到了末尾)
+        4.判断共享数据是否到了末尾 (没有到末尾,执行核心逻辑)
+         */
+
+    @Override
+    public void run() {
+        while (true) {
+            synchronized (Desk.lock) {
+                if (Desk.count == 0) {
+                    break;
+                } else {
+                    //如果没有面条就做并且修改状态为有食物并且唤醒所有这个锁绑定的所有线程
+                    if (Desk.foodFlag == 0) {
+                        System.out.println("又做好一份了");
+                        Desk.foodFlag = 1;
+
+                        Desk.lock.notifyAll();
+                    } else {
+                        try {//如果桌子上还有食物，那么就会等待
+                            Desk.lock.wait();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+}
+
+```
+
+控制类
+
+```java
+package MultipleThread.waitandnotify;
+
+public class Desk {
+    //作用：控制消费者和生产者的执行顺序
+    //1:有面条 0:没有面条
+    public static int foodFlag = 0;
+    //总个数
+    public static int count = 10;
+    //锁对象
+    public static Object lock = new Object();
+
+}
+
+```
+
+测试类
+
+```java
+package MultipleThread.waitandnotify;
+
+public class Test {
+    public static void main(String[] args) {
+
+
+
+        Cook cook = new Cook();
+        Foodie foodie = new Foodie();
+        cook.start();
+        foodie.start();
+    }
+}
+
+```
+
+### 多线程&JUC-21-阻塞队列实现等待唤醒机制
+
+![image-20250127072300766](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250127072300766.png)
+
+阻塞队列继承结构
+
+![image-20250127072634497](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250127072634497.png)
+
+
+
+
+
+### 线程的六种状态
+
+![image-20250128084842133](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250128084842133.png)
+
+### 多线程练习代码(多看)
+
+#### 练习1
+
+```java
+package MultipleThread.Test;
+
+public class T1 {
+    public static void main(String[] args) {
+//        一共有 1000 张电影票，可以在两个窗口领取，假设每次领取的时间为 3000 毫秒，
+//        要求：请用多线程模拟卖票过程并打印剩余电影票的数量
+        MyThread myThread = new MyThread();
+        MyThread myThread1 = new MyThread();
+        myThread.start();
+        myThread1.start();
+    }
+}
+
+
+class MyThread extends Thread {
+    static int tickets = 1000;
+
+    @Override
+    public void run() {
+        while (true) {
+            synchronized (MyThread.class) {
+                if (tickets == 0) {
+                    break;
+                } else {
+                    tickets--;
+                    System.out.println(getName()+"卖掉一张票，还剩" + tickets + "张票");
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+#### 练习2
+
+```java
+package MultipleThread.Test;
+
+public class T2 {
+    public static void main(String[] args) {
+        /*
+       有 100 份礼品，两人同时发送，当剩下的礼品小于 10 份的时候则不再送出。利用多线程模拟该过程并将线程的名字和礼物的剩余数量打印出来。
+         */
+        T2Thread thread = new T2Thread("小明");
+        T2Thread thread1 = new T2Thread("李磊");
+        thread.start();
+        thread1.start();
+    }
+}
+
+class T2Thread extends Thread {
+    static int presents = 100;
+
+    public T2Thread(String name) {
+        super(name);
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            synchronized (T2Thread.class) {
+                if (presents == 10) {
+                    break;
+                } else {
+                    presents--;
+                    System.out.println(getName()+"送出一份礼物,还有" + presents + "份");
+                }
+            }
+        }
+    }
+}
+```
+
+#### 练习3
+
+```java
+package MultipleThread.Test;
+
+public class T3 {
+    public static void main(String[] args) {
+        /*
+        同时开启两个线程，共同获取 1 - 100 之间的所有数字。
+            要求：将输出所有的奇数。
+         */
+        T3Thread thread = new T3Thread();
+        T3Thread thread1 = new T3Thread();
+        thread.start();
+        thread1.start();
+    }
+}
+
+class T3Thread extends Thread {
+    static int number = 1;
+
+    @Override
+    public void run() {
+        while (true) {
+            synchronized (T3Thread.class) {
+                if (number > 100) {
+                    break;
+                }else {
+                    if (number%2!=0){
+                        System.out.println(number);
+                    }
+                    number++;
+                }
+            }
+        }
+    }
+}
+```
+
+#### 练习4
+
+```java
+package MultipleThread.Test;
+
+import java.util.Random;
+
+public class T4 {
+    public static void main(String[] args) {
+        /*
+        微信中的抢红包也用到了多线程。
+假设：100 块，分成了 3 个包。现在有 5 个人去抢。
+其中，红包是共享数据。
+5 个人是 5 条线程。
+打印结果如下：
+XXX 抢到了 XXX 元
+XXX 抢到了 XXX 元
+XXX 抢到了 XXX 元
+XXX 没抢到
+XXX 没抢到
+
+         */
+        T4Thread thread = new T4Thread("a");
+        T4Thread thread1 = new T4Thread("b");
+        T4Thread thread2 = new T4Thread("c");
+        T4Thread thread3 = new T4Thread("d");
+        T4Thread thread4 = new T4Thread("e");
+        thread.start();
+        thread1.start();
+        thread2.start();
+        thread3.start();
+        thread4.start();
+    }
+}
+
+class T4Thread extends Thread {
+    static final double MIN = 0.01;//最低中奖金额
+    static double money = 100;//总钱数量
+    static int count = 3;//共享数据，分成三个包
+
+    public T4Thread(String name) {
+        super(name);
+    }
+
+
+    @Override
+    public void run() {
+
+        synchronized (T4Thread.class) {
+            if (count == 0) {
+                //判断共享数据是否到了末尾(到了)
+                System.out.println(getName() + "没有抽到红包");
+            } else {
+                //判断共享数据是否到了末尾(没有)
+                //随机红包
+                double prize;
+                if (count == 1) {
+                    //最后一个红包的情况
+                    prize = money;
+                } else {
+                    //第一次第二次的情况
+                    Random r = new Random();
+                    //范围是100 - (3-1)*0.01
+                    double bounds = money - (count - 1) * 0.01;
+                    prize = r.nextDouble(bounds);
+                    if (prize < MIN) {
+                        prize = MIN;
+                    }
+                }
+
+                //去掉抽到的钱
+                money = money - prize;
+                //红包个数-1
+                count--;
+                //打印本次获奖信息
+                System.out.println(getName() + "得到了" + prize + "元红包,还剩" + money + "元");
+            }
+        }
+    }
+}
+
+
+```
+
+#### 练习5
+
+```java
+package MultipleThread.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+
+public class T5 {
+    public static void main(String[] args) {
+        /*
+        有一个抽奖池，该抽奖池中存放了奖励的金额，该抽奖池中的奖项为 {10,5,20,50,100,200,500,800,2,80,300,700}；
+创建两个抽奖箱 (线程)，设置线程名称分别为 “抽奖箱 1”，“抽奖箱 2”
+随机从抽奖池中获取奖项元素并打印在控制台上，格式如下：
+每次抽出一个奖项就打印一个 (随机)
+抽奖箱 1 又产生了一个 10 元大奖
+抽奖箱 1 又产生了一个 100 元大奖
+抽奖箱 1 又产生了一个 200 元大奖
+抽奖箱 1 又产生了一个 800 元大奖
+抽奖箱 2 又产生了一个 700 元大奖
+         */
+        ArrayList<Integer> list = new ArrayList<>();
+        Collections.addAll(list, 1, 2, 2, 3, 100, 300, 400, 500, 600, 700);
+        T5Thread thread = new T5Thread(list,"抽奖箱子1");
+        T5Thread thread1 = new T5Thread(list,"抽奖箱子2");
+        thread.start();
+        thread1.start();
+    }
+}
+
+class T5Thread extends Thread {
+
+    ArrayList<Integer> list;
+
+    public T5Thread(ArrayList<Integer> list, String name) {
+        super(name);
+        this.list = list;
+
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            synchronized (T5Thread.class) {
+                if (list.isEmpty()) {
+                    break;
+                } else {
+                    Random r = new Random();
+                    int i = r.nextInt(list.size());
+                    System.out.println(getName() + "出现了大奖" + list.get(i));
+                    list.remove(i);
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+}
+
+```
+
+#### 练习6
+
+```java
+package MultipleThread.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+
+public class T6plus5 {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+    /*
+    多线程练习 6（多线程统计并求最大值）
+在上一题基础上继续完成如下需求：
+每次抽的过程中，不打印，抽完时一次性打印 (随机)
+在此次抽奖过程中，抽奖箱 1 总共产⽣了 6 个奖项。
+分别为：10,20,100,500,2,300 最⾼奖项为 300 元，总计额为 932 元
+在此次抽奖过程中，抽奖箱 2 总共产⽣了 6 个奖项。
+分别为：5,50,200,800,80,700 最⾼奖项为 800 元，总计额为 1835 元
+
+     */
+//        Array
+        ArrayList<Integer> list = new ArrayList<>();
+        Collections.addAll(list, 1, 2, 2, 3, 100, 300, 400, 500, 600, 700);
+        T6MyThread thread = new T6MyThread(list, "抽奖箱子1");
+        T6MyThread thread1 = new T6MyThread(list, "抽奖箱子2");
+
+        thread.start();
+        thread1.start();
+
+    }
+}
+
+class T6MyThread extends Thread {
+    //创建抽奖箱子的容器
+    static ArrayList<Integer> box1 = new ArrayList<>();
+    static ArrayList<Integer> box2 = new ArrayList<>();
+    ArrayList<Integer> list;
+    public T6MyThread(ArrayList<Integer> list, String name) {
+        super(name);
+        this.list = list;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            synchronized (T5Thread.class) {
+                if (list.isEmpty()) {
+                    //抽奖结束
+                    if ("抽奖箱子1".equals(getName())){
+                        System.out.println("抽奖箱子1内有"+box1.toString()+",最大为"+ Collections.max(box1)+",总共有"+ box1.stream().mapToInt(Integer::intValue).sum());
+                    }else {
+                        System.out.println("抽奖箱子2内有"+box2.toString()+",最大为"+ Collections.max(box2)+",总共有"+ box2.stream().mapToInt(Integer::intValue).sum());
+                    }
+                    break;
+                } else {
+                    Random r = new Random();
+                    int index = r.nextInt(list.size());
+                    int item = list.remove(index);
+                    if ("抽奖箱子1".equals(getName())){
+                        box1.add(item);
+                    }else {
+                        box2.add(item);
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+
+
+```
+
+#### 练习7
+
+> 这里讲了线程栈可以详细去了解一下
+
+````java
+package MultipleThread.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+
+public class T7plus6 {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+    /*
+    多线程练习 6（多线程统计并求最大值）
+在上一题基础上继续完成如下需求：
+每次抽的过程中，不打印，抽完时一次性打印 (随机)
+在此次抽奖过程中，抽奖箱 1 总共产⽣了 6 个奖项。
+分别为：10,20,100,500,2,300 最⾼奖项为 300 元，总计额为 932 元
+在此次抽奖过程中，抽奖箱 2 总共产⽣了 6 个奖项。
+分别为：5,50,200,800,80,700 最⾼奖项为 800 元，总计额为 1835 元
+
+     */
+//        Array
+        ArrayList<Integer> list = new ArrayList<>();
+        Collections.addAll(list, 1, 2, 2, 3, 100, 300, 400, 500, 600, 700);
+        T6MyThread thread = new T6MyThread(list, "抽奖箱子1");
+        T6MyThread thread1 = new T6MyThread(list, "抽奖箱子2");
+
+        thread.start();
+        thread1.start();
+
+    }
+}
+
+class T7MyThread extends Thread {
+    //创建抽奖箱子的容器
+    ArrayList<Integer> list;
+    public T7MyThread(ArrayList<Integer> list, String name) {
+        super(name);
+        this.list = list;
+    }
+
+    @Override
+    public void run() {
+        ArrayList<Integer> boxList = new ArrayList<>();
+        while (true) {
+            synchronized (T5Thread.class) {
+                if (list.isEmpty()) {
+                    //抽奖结束
+                    System.out.println(getName() + boxList);
+                    break;
+                } else {
+                    Random r = new Random();
+                    int index = r.nextInt(list.size());
+                    int item = list.remove(index);
+                    boxList.add(item);
+                }
+            }
+        }
+    }
+
+}
+
+
+
+````
+
+### 多线程之间的比较
+
+> 使用futuertask方法
+
+代码
+
+```java
+package MultipleThread.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+public class T8plus7 {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+    /*
+    多线程练习 6（多线程统计并求最大值）
+在上一题基础上继续完成如下需求：
+每次抽的过程中，不打印，抽完时一次性打印 (随机)
+在此次抽奖过程中，抽奖箱 1 总共产⽣了 6 个奖项。
+分别为：10,20,100,500,2,300 最⾼奖项为 300 元，总计额为 932 元
+在此次抽奖过程中，抽奖箱 2 总共产⽣了 6 个奖项。
+分别为：5,50,200,800,80,700 最⾼奖项为 800 元，总计额为 1835 元
+
+     */
+//        Array
+        ArrayList<Integer> list = new ArrayList<>();
+        Collections.addAll(list, 1, 2, 2, 3, 100, 300, 400, 500, 600, 700);
+        MyCallable myCallable = new MyCallable(list);
+        //线程1管理者
+        FutureTask<Integer> futureTask = new FutureTask<>(myCallable);
+        //线程2管理者
+        FutureTask<Integer> futureTask1 = new FutureTask<>(myCallable);
+        Thread thread1 = new Thread(futureTask);
+        Thread thread2 = new Thread(futureTask1);
+        thread1.start();
+        thread2.start();
+        if (futureTask.get()>futureTask1.get()){
+            System.out.println("\"线程1有最大的红包\" = "+futureTask.get());
+        }else {
+            System.out.println("\"线程2有最大的红包\" = " + futureTask1.get() );
+        }
+
+    }
+}
+
+class MyCallable implements Callable<Integer> {
+    //创建抽奖箱子的容器
+    ArrayList<Integer> list;
+
+    public MyCallable(ArrayList<Integer> list) {
+        this.list = list;
+    }
+
+
+    @Override
+    public Integer call() {
+        ArrayList<Integer> boxList = new ArrayList<>();
+        while (true) {
+            synchronized (T5Thread.class) {
+                if (list.isEmpty()) {
+                    //抽奖结束
+                    System.out.println(Thread.currentThread().getName() + boxList);
+                    break;
+                } else {
+                    Random r = new Random();
+                    int index = r.nextInt(list.size());
+                    int item = list.remove(index);
+                    boxList.add(item);
+                }
+            }
+        }
+
+    return Collections.max(boxList);
+    }
+
+}
+
+
+
+```
+
+### 线程池(💫💫💫💫💫)
+
+#### 之前写多线程的弊端
+
+1.用到线程就需要创建
+
+2.用完线程就消失
+
+线程池核心原理
+
+① 创建一个池子，池子中是空的
+
+② 提交任务时，池子会创建新的线程对象，任务执行完毕，线程归还给池子
+下回再次提交任务时，不需要创建新的线程，直接复用已有的线程即可
+
+③ 但是如果提交任务时，池子中没有空闲线程，也无法创建新的线程，任务就会排队等待
+
+#### 线程池代码实现
+
+`Executors`：线程池的工具类通过调用方法返回不同类型的线程池对象。
+
+| 方法名称                                                     | 说明                     |
+| ------------------------------------------------------------ | ------------------------ |
+| `public static ExecutorService newCachedThreadPool()`        | 创建一个没有上限的线程池 |
+| `public static ExecutorService newFixedThreadPool(int nThreads)` | 创建有上限的线程池       |
+
+```java
+代码
+    package MultipleThread.ThreadPool;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Demo {
+    public static void main(String[] args) {
+        //1.创建线程池
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        //2.提交任务
+        executorService.submit(()->{
+            for (int i = 0; i < 100; i++) {
+                System.out.println(Thread.currentThread().getName()+"\ti = " +i);
+            }
+        });
+        //如果这里main线程阻塞以后,等到线程一的内容执行完，线程一被送回到线程池，后，接下来的内容还是线程1执行
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        executorService.submit(()->{
+            for (int j = 0; j < 100; j++) {
+                System.out.println(Thread.currentThread().getName()+"\tj = " + j);
+            }
+        });
+        //3.所有任务执行完毕，关闭线程池
+        //销毁线程池
+        executorService.shutdown();
+    }
+}
+
+```
 
