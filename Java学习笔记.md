@@ -10895,3 +10895,13 @@ public class Demo {
 
 ```
 
+### 自定义线程池详细解析
+
+![image-20250203065851935](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250203065851935.png)
+
+| 任务拒绝策略                           | 说明                                                     |
+| -------------------------------------- | -------------------------------------------------------- |
+| ThreadPoolExecutor.AbortPolicy         | 默认策略：丢弃任务并抛出 RejectedExecutionException 异常 |
+| ThreadPoolExecutor.DiscardPolicy       | 丢弃任务，但是不抛出异常 这是不推荐的做法                |
+| ThreadPoolExecutor.DiscardOldestPolicy | 抛弃队列中等待最久的任务 然后把当前任务加入队列中        |
+| ThreadPoolExecutor.CallerRunsPolicy    | 调用任务的 run () 方法绕过线程池直接执行                 |
