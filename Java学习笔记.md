@@ -10911,5 +10911,133 @@ public class Demo {
 代码
 
 ```java
+package MultipleThread.CustomerThreadPool;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+public class Demo {
+    public static void main(String[] args) {
+//        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(核心线程数量,最大线程数量,空闲线程最大存活时间,任务队列,创建线程工厂,任务的拒绝策略);
+//        参数一：核心线程数量：不能小于 0。
+//        参数二：最大线程数：不能小于等于 0，且最大数量需大于等于核心线程数量。
+//        参数三：空闲线程最大存活时间：不能小于 0。
+//        参数四：时间单位：用TimeUnit指定。
+//        参数五：任务队列：不能为空（null）。
+//        参数六：创建线程工厂：不能为空（null）。
+//        参数七：任务的拒绝策略：不能为空（null）。
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(3,//        参数一：核心线程数量：不能小于 0
+                6,// 最大线程数：不能小于等于 0，且最大数量需大于等于核心线程数量
+                60,//        参数三：空闲线程最大存活时间：不能小于
+                TimeUnit.SECONDS,//        参数四：时间单位：用TimeUnit指
+                new ArrayBlockingQueue<>(10),//        参数五：任务队列：不能为空（null
+                Executors.defaultThreadFactory(),//        参数六：创建线程工厂：不能为空（null）。
+                new ThreadPoolExecutor.DiscardPolicy());//        参数七：任务的拒绝策略：不能为空（null）
+    }
+}
+
 ```
+
+### 最大并行数
+
+
+
+查看系统最大并行数
+
+```java
+ int count = Runtime.getRuntime().availableProcessors();
+```
+
+### 多线程&JUC-32-线程池设置多大合适
+
+CPU密集型运算:最大并行数+1
+
+I/O密集型运算:最大并行数*期望CPU利用率*总时间(CPU计算时间+等待时间)/CPU计算时间
+
+![image-20250206161115718](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250206161115718.png)
+
+## 网络编程
+
+
+
+### 网络编程-01-初识网络编程
+
+在网络通信协议下，不同计算机上运行的程序，进行数据的传输
+
+应用场景:游戏，通信，金融
+
+Java中使用`java.net`包中的技术轻松开发出常见的网络app
+
+常见的软件技术
+
+B/S,C/S
+
+C/S:Client,Server客户端，服务端
+
+> 在用户本地需要下载并安装客户端,
+>
+> 在远程有一个服务器端程序
+
+B/S:Browser/Server浏览器/服务器
+
+只需要一个浏览器，用户通过不同的网址。访问不同的服务器
+
+![image-20250206162607968](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250206162607968.png)
+
+![image-20250206162630294](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250206162630294.png)
+
+![image-20250206162656517](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250206162656517.png)
+
+### 网络编程-02-网络编程三要素
+
+- IP
+  - 设备再网络中的地址
+- 端口号
+  - 应用在设备中的标识
+- 协议
+  - 数据在网络中传输的协议例如:udp,tcp,http,https
+
+
+
+### 网络编程-05-InetAddress类的使用
+
+  代码
+
+```java
+package Net;
+
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+public class Demo {
+    public static void main(String[] args) throws UnknownHostException {
+        /*
+        static InetAddress getByName(String host) 确定主机名称的IP地址。主机名称可以是机器名称，也可以是IP地址
+        String getHostName()    获取此IP地址的主机名
+        String getHostAddress()    返回文本显示中的IP地址字符串
+         */
+        //获取InetAddress对象
+        InetAddress ubuntu = Inet4Address.getByName("ubuntu");
+        String hostAddress = ubuntu.getHostAddress();
+        String hostname = ubuntu.getHostName();
+        System.out.println("hostAddress = " + hostAddress);
+        System.getenv().entrySet().stream().filter(x -> x.getKey().equals("LANG")).forEach(System.out::println);
+    }
+}
+
+```
+
+### 网络编程-07-协议
+
+![image-20250206164825495](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250206164825495.png)
+
+### 网络编程-08-UDP协议(发送数据)
+
+1. 创建发送端的DatagramSocket对象
+2. 数据打包(DatagramPacket)
+3. 发送数据
+4. 释放资源
 

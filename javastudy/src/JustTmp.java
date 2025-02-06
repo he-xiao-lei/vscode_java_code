@@ -4,6 +4,11 @@ public class JustTmp {
         oni.setName("aaa");
         String name = oni.getName();
         System.out.println("name = " +name);
+        //处理器核心数量
+        int i = Runtime.getRuntime().availableProcessors();
+
+        System.out.println("i = " + i);
+
     }
 }
 

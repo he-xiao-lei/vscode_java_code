@@ -1,7 +1,6 @@
 package Hutool;
 
 import cn.hutool.Hutool;
-import cn.hutool.http.HttpUtil;
 
 import java.util.Set;
 
@@ -11,7 +10,7 @@ public class HutoolDemo1 {
         for (Class<?> allUtil : allUtils) {
             System.out.println(allUtil);
         }
-        HttpUtil.createServer(8888).addAction("/",((httpServerRequest, httpServerResponse) -> httpServerResponse.write("HelloWorld"))).start();
+//        HttpUtil.createServer(8888).addAction("/",((httpServerRequest, httpServerResponse) -> httpServerResponse.write("HelloWorld"))).start();
 
     }
 }
