@@ -11041,3 +11041,209 @@ public class Demo {
 3. 发送数据
 4. 释放资源
 
+```java
+package Net;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+
+public class UDPSend {
+    public static void main(String[] args) throws IOException {
+        //发送数据
+        //1.创建DatagramSocket对象
+        //细节:
+        //绑定端口,以后我们就是通过这个端口向外发送
+        //空参：随机选择一个端口
+        //有参：指定端口号绑定
+        DatagramSocket ds = new DatagramSocket(55555);
+        //2.打包数据
+        String str = "你好帅阿，认识一下";
+        byte[] bytes = str.getBytes();
+        InetAddress ip = Inet4Address.getByName("ubuntu");
+        int port = 65535;
+        DatagramPacket dp = new DatagramPacket(bytes, bytes.length, ip, port);
+
+        ds.send(dp);
+
+
+    }
+}
+
+```
+
+### 网络编程-09-UDP协议(接受数据)
+
+![image-20250207071651504](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250207071651504.png)
+
+### 网络编程-10-聊天室练习
+
+Send
+
+```java
+package Net.LIAOTIANSHI;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.Scanner;
+
+public class Send {
+    public static void main(String[] args) throws IOException {
+        DatagramSocket ds = new DatagramSocket();
+
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            String str = sc.nextLine();
+            if (str.equals("886")){
+                break;
+            }
+            byte[] data = str.getBytes();
+            InetAddress ip = InetAddress.getByName("ubuntu");
+            int port = 65535;
+            DatagramPacket dp = new DatagramPacket(data, data.length, ip, port);
+            ds.send(dp);
+        }
+
+
+
+    }
+}
+
+```
+
+Receive
+
+```java
+package Net.LIAOTIANSHI;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+public class Receive {
+    public static void main(String[] args) throws IOException {
+        DatagramSocket ds = new DatagramSocket(65535);
+
+        byte[] bytes = new byte[1024];
+
+        DatagramPacket dp = new DatagramPacket(bytes,bytes.length);
+
+        while (true) {
+            ds.receive(dp);
+            System.out.println("数据 = "+new String(dp.getData(),0,dp.getLength()));
+            System.out.println("源ip和端口"+dp.getAddress()+"\t"+dp.getPort());
+        }
+
+
+    }
+}
+
+```
+
+### 网络编程-11-单播，组播，广播
+
+![image-20250209082035803](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250209082035803.png)
+
+### 网络编程-12-TCP协议(发送和接收数据)
+
+> TCP通信协议是一种可靠的网络协议，它在通信的两端各建立一个Socket对象，通信之前要保证连接已经建立，通过Socket产生IO流来进行网络通信。
+
+![image-20250209083639936](/home/hexiaolei/IdeaProjects/vscode_java_code/image-20250209083639936.png)
+
+这是关于Java中使用TCP协议进行网络编程时，客户端Socket操作步骤的内容：jk
+
+1. **创建客户端的Socket对象(Socket)与指定服务端连接**：
+> 通过`Socket(String host, int port)`构造方法来创建Socket对象，其中`host`是服务端的主机名或IP地址，`port`是服务端监听的端口号，用于建立与指定服务端的连接。
+
+2. **获取输出流，写数据**
+
+> 使用`OutputStream getOutputStream()`方法从Socket对象获取输出流，通过该输出流可以向服务端写入要发送的数据。
+
+3. **释放资源**：
+
+> 当通信完成后，调用`void close()`方法关闭Socket对象，释放与之相关的资源，如网络连接占用的资源等。 这三步是Java中基于TCP协议进行客户端网络通信的基本流程步骤。
+
+服务端 
+
+① 创建服务器端的Socket对象(ServerSocket) 
+
+> ServerSocket(int port) 
+
+② 监听客户端连接，返回一个Socket对象
+> Socket accept() 
+
+③ 获取输入流，读数据，并把数据显示在控制台
+>  InputStream getInputStream() 
+
+④ 释放资源
+> void close()
+
+练习代码包含去除中文乱码的代码
+
+Client
+
+```java
+package Net.TCPDemo1;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+
+public class client {
+    public static void main(String[] args) throws IOException {
+        //TCP协议，传输数据
+        //链接服务端
+        //如果连接不到就会报ConnectException连接异常
+        //建立连接
+        Socket socket = new Socket("127.0.0.1", 10000);
+        //2.获取输出流
+        OutputStream outputStream = socket.getOutputStream();
+
+        outputStream.write("你好我是一个中国人".getBytes());
+        //3.关流
+        outputStream.close();
+        socket.close();
+    }
+}
+
+```
+
+Server
+
+```java
+package Net.TCPDemo1;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server {
+    public static void main(String[] args) throws IOException {
+        //1.创建ServerSocket对象
+        ServerSocket socket = new ServerSocket(10000);
+        //2.监听客户端连接
+        Socket accept = socket.accept();
+        InputStream inputStream = accept.getInputStream();
+        InputStreamReader isr = new InputStreamReader(inputStream);
+        BufferedReader br = new BufferedReader(isr);
+        String str;
+        while ((str=br.readLine())!=null){
+            System.out.println(str);
+        }
+
+        inputStream.close();
+        socket.close();
+
+    }
+}
+
+```
+

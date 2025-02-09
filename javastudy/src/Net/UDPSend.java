@@ -3,7 +3,6 @@ package Net;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 
 public class UDPSend {
@@ -18,11 +17,12 @@ public class UDPSend {
         //2.打包数据
         String str = "你好帅阿，认识一下";
         byte[] bytes = str.getBytes();
-        InetAddress inetAddress = Inet4Address.getByName("ubuntu");
-        DatagramPacket dp = new DatagramPacket(bytes,0,bytes.length-1,inetAddress,65535);
+        InetAddress ip = InetAddress.getByName("ubuntu");
+        int port = 65535;
+        DatagramPacket dp = new DatagramPacket(bytes, bytes.length, ip, port);
 
         ds.send(dp);
 
-
+        ds.close();
     }
 }
