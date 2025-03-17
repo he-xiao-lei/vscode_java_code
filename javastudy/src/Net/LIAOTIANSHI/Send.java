@@ -18,7 +18,7 @@ public class Send {
                 break;
             }
             byte[] data = str.getBytes();
-            InetAddress ip = InetAddress.getByName("ubuntu");
+            InetAddress ip = InetAddress.getByName("127.0.0.1");
             int port = 65535;
             DatagramPacket dp = new DatagramPacket(data, data.length, ip, port);
             ds.send(dp);

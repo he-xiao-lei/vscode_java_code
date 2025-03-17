@@ -4138,7 +4138,7 @@ HashMap底层原理
 1. HashMap底层是哈希表结构
 2. 以来hashCode方法和equals方法保证键的唯一性
 3. 如果键存储的是自定义对象，需要重写hashCode和equals方法
-4. 如果值存储自定义对象，不需要重写hashCode和equals方法
+4. 如果值存储的不是自定义对象，不需要重写hashCode和equals方法
 
 ## P7 HashMap练习题
 
