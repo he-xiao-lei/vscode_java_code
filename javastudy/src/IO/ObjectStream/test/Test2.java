@@ -10,6 +10,8 @@ public class Test2 {
         //创建反序列化流对象
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream("/home/hexiaolei/aaa/student.txt"));
         ArrayList<Student> list= (ArrayList<Student>) ois.readObject();
+
+
         for (Student student : list) {
             System.out.println(student.toString());
         }
